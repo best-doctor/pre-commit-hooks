@@ -69,7 +69,7 @@
   language: python
 
 - id: check-gitleaks
-  name: Check for sensitive data
+  name: Check gitleaks secrets
   description: Runs `gitleaks`, requires https://github.com/zricethezav/gitleaks
   entry: scripts/check-gitleaks.sh
   language: script
