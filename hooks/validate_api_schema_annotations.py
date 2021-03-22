@@ -245,7 +245,7 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
 
 
 def check_docstrings_for_api_action_handlers(node: ast.ClassDef, *args: typing.Any) -> Errors:
-    """Проверяет, что методы action в апи имееют докстринги."""
+    """Проверяет, что методы action в апи имеют докстринги."""
     errors = []
 
     for function_def in get_classdef_methods(node):
