@@ -2,6 +2,8 @@
 
 Этот репозиторий содержит pre-commit хуки общего назначения которые используются в BestDoctor для Python-проектов.
 
+[Чтиво про то как это работает, и как настраивается](https://pre-commit.com/)
+
 ## Как использовать
 
 Чтобы подключить хуки, необходимо в корневой каталог репозитория положить файл `.pre-commit-config.yaml` следующего
@@ -15,7 +17,7 @@ repos:
       - id: no-asserts
 ```
 
-и в секции `hooks` перечислить хуки уоторые требуется включить.
+и в секции `hooks` перечислить хуки которые требуется включить.
 
 ## Конфигурация
 
@@ -156,3 +158,39 @@ make lock
 
 `make lock` генерирует `requirements.txt` и `requirements_dev.txt`, которые используются для установки зависимостей при
 билде. Их нужно закоммитить вместе с `requirements.in`.
+
+
+### Использование локально разрабатываемой копии pre-commit-hooks
+
+#### Создаём новый хук
+
+Скопировали какой-нибудь существующий хук, написали нужный код, затем дописываем в `.pre-commit-hooks.yaml`:
+```yaml
+- id: panzerfaust  # это имя хука
+  name: Fausts panzers
+  entry: panzerfaustize  # это имя, определённое в setup.cfg
+  language: python
+```
+
+Зарегистрируем в `setup.cfg`:
+```сfg
+[options.entry_points]
+console_scripts =
+    ; ссылаемся на файл hooks/panzerfaustize.py
+    panzerfaustize = hooks.panzerfaustize:main
+```
+
+#### Тестим хук из локальной репы
+
+Затрекаем новый хук или его изменения, а то `try-repo` не подхватит
+```shell script
+git add hooks/panzerfaustize.py
+```
+
+```shell script
+# идём в подопытную репу и выполняем там:
+pre-commit try-repo ../my-pre-commit-hooks/ panzerfaust\
+  --files=./src/killroy.py\
+  --files=./src/was.py\
+  --files=./src/here.py
+```
