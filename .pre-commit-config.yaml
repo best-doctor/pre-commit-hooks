@@ -1,0 +1,67 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.2.0
+  hooks:
+  - id: check-ast
+  - id: check-executables-have-shebangs
+  - id: check-yaml
+  - id: double-quote-string-fixer
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.7.0
+    hooks:
+    -   id: python-check-blanket-noqa
+        exclude: hooks/validate_ajustable_complexity.py
+
+- repo: https://github.com/PyCQA/isort
+  rev: '5.7.0'
+  hooks:
+  - id: isort
+
+- repo: https://github.com/pre-commit/mirrors-autopep8
+  rev: v1.5.4
+  hooks:
+  - id: autopep8
+
+- repo: https://gitlab.com/pycqa/flake8
+  rev: '3.8.2'
+  hooks:
+  - id: flake8
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v0.770
+  hooks:
+  - id: mypy
+
+- repo: https://github.com/best-doctor/pre-commit-hooks
+  rev: v1.0.4
+  hooks:
+  - id: mccabe-complexity
+    name: Check functions complexity
+    entry: python hooks/validate_ajustable_complexity.py
+    language: python
+    additional_dependencies:
+      - mccabe
+  - id: expr-complexity
+    name: Check expressions complexity
+    entry: python hooks/validate_expressions_complexity.py
+    language: python
+  - id: no-asserts
+    name: Check no asserts in code
+    entry: python hooks/validate_no_asserts.py
+    language: python
+    exclude: /tests/
+  - id: test-naming
+    name: Check if tests named appropriately
+    entry: python hooks/validate_test_namings.py
+    language: python
+  - id: line-count
+    name: Check number of lines in python files
+    entry: python hooks/validate_amount_of_py_file_lines.py
+    language: python
+  - id: old-style-annotations
+    name: Check old-style annotations
+    entry: python hooks/validate_old_style_annotations.py
+    language: python

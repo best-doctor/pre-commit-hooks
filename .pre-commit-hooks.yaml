@@ -1,0 +1,75 @@
+- id: mccabe-complexity
+  name: Check functions complexity
+  entry: validate_ajustable_complexity
+  language: python
+  additional_dependencies:
+    - mccabe
+
+- id: expr-complexity
+  name: Check expressions complexity
+  entry: validate_expressions_complexity
+  language: python
+
+- id: no-asserts
+  name: Check no asserts in code
+  entry: validate_no_asserts
+  language: python
+
+- id: django-null-comments
+  name: Check if all nullable fields are annotated
+  entry: validate_django_null_true_comments
+  language: python
+  additional_dependencies:
+    - redbaron
+
+- id: django-model-field-names
+  name: Check Django model field names
+  entry: validate_django_model_field_names
+  language: python
+
+- id: test-naming
+  name: Check if tests named appropriately
+  entry: validate_test_namings
+  language: python
+
+- id: line-count
+  name: Check number of lines in python files
+  entry: validate_amount_of_py_file_lines
+  language: python
+
+- id: api-annotated
+  name: Check api schema annotations
+  entry: validate_api_schema_annotations
+  language: python
+  language_version: "3.8"
+
+- id: old-style-annotations
+  name: Check old-style annotations
+  entry: validate_old_style_annotations
+  language: python
+
+- id: package-structure
+  name: Root packages structure
+  entry: validate_package_structure
+  language: python
+
+- id: forbidden-imports
+  name: Forbidden imports
+  entry: validate_no_forbidden_imports
+  language: python
+
+- id: graphql-implicit-fields
+  name: GraphQL fields implicit exposure
+  entry: validate_graphql_model_fields_definition
+  language: python
+
+- id: settings-variables
+  name: "Settings: no straight assignment"
+  entry: validate_settings_variables
+  language: python
+
+- id: check-gitleaks
+  name: Check for sensitive data
+  description: Runs `gitleaks`, requires https://github.com/zricethezav/gitleaks
+  entry: scripts/check-gitleaks.sh
+  language: script
