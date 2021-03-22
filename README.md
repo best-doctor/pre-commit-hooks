@@ -10,7 +10,7 @@
 ```yaml
 repos:
   - repo: https://github.com/best-doctor/pre-commit-hooks
-    rev: v1.0.2
+    rev: v1.0.0
     hooks:
       - id: no-asserts
 ```

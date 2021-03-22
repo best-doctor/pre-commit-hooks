@@ -43,7 +43,7 @@ repos:
     exclude: hooks/tests
 
 - repo: https://github.com/best-doctor/pre-commit-hooks
-  rev: 63ade16bfcfb91c169863b9e85d0865f44c67e81
+  rev: v1.0.0
   hooks:
   - id: mccabe-complexity
     name: Check functions complexity
