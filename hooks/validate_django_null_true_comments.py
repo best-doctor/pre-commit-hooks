@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Optional, List, Iterator
+from typing import Iterator, List, Optional
 
 from redbaron import RedBaron
 from redbaron.nodes import CommentNode, Node

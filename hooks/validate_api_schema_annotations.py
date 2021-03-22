@@ -36,7 +36,12 @@ def _is_class(node: ast.AST) -> bool:
 
 def _is_api_serializer(node: ast.AST, file_path: str) -> bool:
     serializer_file = 'serializers.py' in file_path or 'serializers/' in file_path
-    return serializer_file and _is_class(node) and hasattr(node, 'name') and node.name != 'Meta'
+    return (
+        serializer_file
+        and _is_class(node)
+        and hasattr(node, 'name')
+        and typing.cast(ast.ClassDef, node).name != 'Meta'
+    )
 
 
 def _is_api_view(node: ast.AST) -> bool:
@@ -153,7 +158,9 @@ def check_schema_tags_presence_in_views_and_viewsets(node: ast.ClassDef, file_pa
     return [f'{node.name} missed schema tags attribute']
 
 
-def check_viewset_has_serializer_class_map(node: ast.ClassDef, *args: typing.Any) -> Errors:
+def check_viewset_has_serializer_class_map(
+    node: ast.ClassDef, file_path: str
+) -> Errors:
     """Проверяет, что у ViewSet определен serializer_class_map."""
     serializer_class_map_attirbute = 'serializer_class_map'
 
@@ -166,7 +173,7 @@ def check_viewset_has_serializer_class_map(node: ast.ClassDef, *args: typing.Any
     return [f':{node.lineno} {node.name} missed `serializer_class_map` attribute']
 
 
-def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, *args: typing.Any) -> Errors:
+def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, file_path: str) -> Errors:
     """Проверяет, что ViewSet.lookup_field != ‘id’."""
     allowed_lookup_fields = ['uuid']
     if _is_api_viewset(node) is False:
@@ -239,7 +246,7 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
     return errors
 
 
-def check_docstrings_for_api_action_handlers(node: ast.ClassDef, *args: typing.Any) -> Errors:
+def check_docstrings_for_api_action_handlers(node: ast.ClassDef, file_path: str) -> Errors:
     """Проверяет, что методы action в апи имееют докстринги."""
     errors = []
 
@@ -255,7 +262,7 @@ def check_docstrings_for_api_action_handlers(node: ast.ClassDef, *args: typing.A
     return errors
 
 
-def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, *args: typing.Any) -> Errors:
+def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, file_path: str) -> Errors:
     """Проверяет, что dispatch методы вьюх имеют докстринги."""
     if _is_api_view(node) is False:
         return []
@@ -270,7 +277,7 @@ def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, *args: typin
     return errors
 
 
-def check_doctstrings_viewsets_dispatch_methods(node: ast.ClassDef, *args: typing.Any) -> Errors:
+def check_doctstrings_viewsets_dispatch_methods(node: ast.ClassDef, file_path: str) -> Errors:
     """Проверяет, что dispatch методы вьюсетов имеют докстринги."""
     if _is_api_viewset(node) is False:
         return []
@@ -299,7 +306,7 @@ def check_schema_annotations(
     [X] SerializerMethodField должны быть обернуты в SchemaWrapper (если функция возвращает не str)
     [X] docstring-и для action-методов вьюх и вьюсетов (get/put/post/patch/delete, кастомные action)
     """
-    checkers = [
+    checkers: typing.List[typing.Callable[[ast.ClassDef, str], Errors]] = [
         check_docstring,
         check_doctstrings_viewsets_dispatch_methods,
         check_docstrings_for_views_dispatch_methods,

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import configparser
-
 from typing import List, Optional, Set
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hooks.utils.pre_commit import is_django_model_file, get_modules_files
+from hooks.utils.pre_commit import get_modules_files, is_django_model_file
 
 
 def test_get_modules_files():

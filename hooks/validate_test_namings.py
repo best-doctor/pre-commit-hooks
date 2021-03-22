@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ast
 import collections
-from typing import List, DefaultDict, Union, Optional
+from typing import DefaultDict, List, Optional, Union
 
 from hooks.utils.ast_helpers import AnyFuncdef
 from hooks.utils.pre_commit import get_input_test_files

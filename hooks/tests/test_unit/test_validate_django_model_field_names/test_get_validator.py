@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from hooks.validate_django_model_field_names import get_validator, datetime_validator, date_validator, boolean_validator
+from hooks.validate_django_model_field_names import boolean_validator, date_validator, datetime_validator, get_validator
 
 
 @pytest.mark.parametrize(

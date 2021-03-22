@@ -4,8 +4,8 @@ import ast
 import itertools
 from typing import Optional
 
-from hooks.utils.pre_commit import get_input_files
 from hooks.utils.ast_helpers import get_ast_tree_with_content
+from hooks.utils.pre_commit import get_input_files
 
 
 def main() -> Optional[int]:

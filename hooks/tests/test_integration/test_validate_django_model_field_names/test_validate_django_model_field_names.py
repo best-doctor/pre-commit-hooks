@@ -3,8 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from hooks.utils.ast_helpers import iterate_files_in
-from hooks.validate_django_model_field_names import Error, validate, datetime_validator, date_validator
-
+from hooks.validate_django_model_field_names import Error, date_validator, datetime_validator, validate
 
 SAMPLES_DIR = Path(__file__).parent.resolve() / 'samples'
 

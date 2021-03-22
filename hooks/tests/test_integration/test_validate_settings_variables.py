@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import ast
+
 import pytest
 
-from hooks.validate_settings_variables import (
-    get_line_numbers_of_wrong_assignments, exclude_lines_with_noqa,
-)
+from hooks.validate_settings_variables import exclude_lines_with_noqa, get_line_numbers_of_wrong_assignments
 
 
 @pytest.mark.parametrize(
