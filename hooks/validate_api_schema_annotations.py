@@ -158,9 +158,7 @@ def check_schema_tags_presence_in_views_and_viewsets(node: ast.ClassDef, file_pa
     return [f'{node.name} missed schema tags attribute']
 
 
-def check_viewset_has_serializer_class_map(
-    node: ast.ClassDef, file_path: str
-) -> Errors:
+def check_viewset_has_serializer_class_map(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что у ViewSet определен serializer_class_map."""
     serializer_class_map_attirbute = 'serializer_class_map'
 
@@ -173,7 +171,7 @@ def check_viewset_has_serializer_class_map(
     return [f':{node.lineno} {node.name} missed `serializer_class_map` attribute']
 
 
-def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, file_path: str) -> Errors:
+def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что ViewSet.lookup_field != ‘id’."""
     allowed_lookup_fields = ['uuid']
     if _is_api_viewset(node) is False:
@@ -246,7 +244,7 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
     return errors
 
 
-def check_docstrings_for_api_action_handlers(node: ast.ClassDef, file_path: str) -> Errors:
+def check_docstrings_for_api_action_handlers(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что методы action в апи имееют докстринги."""
     errors = []
 
@@ -262,7 +260,7 @@ def check_docstrings_for_api_action_handlers(node: ast.ClassDef, file_path: str)
     return errors
 
 
-def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, file_path: str) -> Errors:
+def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что dispatch методы вьюх имеют докстринги."""
     if _is_api_view(node) is False:
         return []
@@ -277,7 +275,7 @@ def check_docstrings_for_views_dispatch_methods(node: ast.ClassDef, file_path: s
     return errors
 
 
-def check_doctstrings_viewsets_dispatch_methods(node: ast.ClassDef, file_path: str) -> Errors:
+def check_doctstrings_viewsets_dispatch_methods(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что dispatch методы вьюсетов имеют докстринги."""
     if _is_api_viewset(node) is False:
         return []
