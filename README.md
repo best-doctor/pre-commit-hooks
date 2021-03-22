@@ -190,5 +190,7 @@ git add hooks/panzerfaustize.py
 ```shell script
 # идём в подопытную репу и выполняем там:
 pre-commit try-repo ../my-pre-commit-hooks/ panzerfaust\
-  --files=./visits/tests/test_api/test_serializers.py\
-  --files=./visits/tests/test_api/test_viewsets.py
+  --files=./src/killroy.py\
+  --files=./src/was.py\
+  --files=./src/here.py
+```
