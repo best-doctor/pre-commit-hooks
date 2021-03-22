@@ -8,5 +8,5 @@ install:
 	@pip-sync requirements.txt requirements_dev.txt
 
 lock:
-	@pip-compile --generate-hashes
-	@pip-compile --generate-hashes requirements_dev.in
+	@pip-compile --no-emit-index-url --generate-hashes
+	@pip-compile --no-emit-index-url --generate-hashes requirements_dev.in

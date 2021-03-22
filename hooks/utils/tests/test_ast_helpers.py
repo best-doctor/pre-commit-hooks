@@ -5,9 +5,11 @@ import ast
 import pytest
 
 from hooks.utils.ast_helpers import (
-    get_var_names_from_assignment, get_var_names_from_funcdef,
-    get_full_imported_name, is_django_orm_query,
     _is_classdef_has_base_classes,
+    get_full_imported_name,
+    get_var_names_from_assignment,
+    get_var_names_from_funcdef,
+    is_django_orm_query,
 )
 
 

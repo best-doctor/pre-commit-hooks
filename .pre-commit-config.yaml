@@ -13,12 +13,18 @@ repos:
     rev: v1.7.0
     hooks:
     -   id: python-check-blanket-noqa
-        exclude: hooks/validate_ajustable_complexity.py
+        exclude: |
+          (?x)(
+            hooks/validate_ajustable_complexity.py|
+            hooks/validate_expressions_complexity.py|
+            hooks/tests/test_integration/test_validate_settings_variables.py
+          )
 
 - repo: https://github.com/PyCQA/isort
   rev: '5.7.0'
   hooks:
   - id: isort
+    exclude: hooks/tests/test_integration/test_validate_django_model_field_names/samples
 
 - repo: https://github.com/pre-commit/mirrors-autopep8
   rev: v1.5.4
@@ -34,9 +40,10 @@ repos:
   rev: v0.770
   hooks:
   - id: mypy
+    exclude: hooks/tests
 
 - repo: https://github.com/best-doctor/pre-commit-hooks
-  rev: v1.0.4
+  rev: 63ade16bfcfb91c169863b9e85d0865f44c67e81
   hooks:
   - id: mccabe-complexity
     name: Check functions complexity

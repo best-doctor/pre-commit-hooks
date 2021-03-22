@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import List, Iterable, TypeVar, Optional, Union
+
+from typing import Iterable, List, Optional, TypeVar, Union
 
 T = TypeVar('T')
 

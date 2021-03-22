@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import ast
-from typing import Dict, Any, List, Optional
-
 import itertools
+from typing import Any, Dict, List, Optional
 
-
-from hooks.utils.ast_helpers import (
-    get_ast_tree_with_content, iterate_over_expressions, is_django_orm_query,
-)
+from hooks.utils.ast_helpers import get_ast_tree_with_content, is_django_orm_query, iterate_over_expressions
 from hooks.utils.list_utils import max_with_default
 from hooks.utils.pre_commit import get_input_files
 
