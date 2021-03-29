@@ -5,3 +5,4 @@ mypy==0.790
 pep8-naming==0.11.1
 pre-commit==2.9.2
 pytest==6.1.2
+rozental-as-a-service==1.1.2

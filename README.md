@@ -41,7 +41,6 @@ Configuration options:
 - `setup.cfg -> [flake8] -> per-path-max-complexity` - a list of 'file_name: complexity',
   each item containing max complexity override for a file.
 
-
 ### `validate_amount_of_py_file_lines`
 
 Ensures a file does not contain more than `--lines n` lines (default: 1000).

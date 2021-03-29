@@ -10,3 +10,6 @@ install:
 lock:
 	@pip-compile --no-emit-index-url --generate-hashes
 	@pip-compile --no-emit-index-url --generate-hashes requirements_dev.in
+
+spelling:
+	@rozental .
