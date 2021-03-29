@@ -35,10 +35,8 @@ def main() -> Optional[int]:
     too_long_files = find_too_long_py_files(args.lines, files)
     if too_long_files:
         print(f'Allowed amount of lines - {args.lines}. The following files failed validation:')
-    for py_file_name, amount_of_lines in too_long_files.items():
-        print(f'{amount_of_lines} lines in {py_file_name}')  # noqa: T001
-
-    if too_long_files:
+        for py_file_name, amount_of_lines in too_long_files.items():
+            print(f'{amount_of_lines} lines in {py_file_name}')  # noqa: T001
         return 1
 
 
