@@ -1,13 +1,12 @@
 # Pre Commit Hooks
 
-Этот репозиторий содержит pre-commit хуки общего назначения которые используются в BestDoctor для Python-проектов.
+This repo contains BestDoctor's pre-commit hooks for python projects.
 
-[Чтиво про то как это работает, и как настраивается](https://pre-commit.com/)
+[pre-commit documentation](https://pre-commit.com/)
 
-## Как использовать
+## How do I use it?
 
-Чтобы подключить хуки, необходимо в корневой каталог репозитория положить файл `.pre-commit-config.yaml` следующего
-содержания:
+Create a `.pre-commit-config.yaml` in your repo and put this inside:
 
 ```yaml
 repos:
@@ -17,178 +16,179 @@ repos:
       - id: no-asserts
 ```
 
-и в секции `hooks` перечислить хуки которые требуется включить.
+List the hooks you'd like to enable under the `hooks:` section.
 
-## Конфигурация
+## How do I configure it?
 
-Все хуки используют параметр `setup.cfg -> [flake8] -> exclude` - для определения списка директорий исключаемых из
-проверки. Если есть необходимость выключить какие-то файлы/директории дополнительно, можно использовать параметр хука
-`exclude` в `.pre-commit-config.yaml` чтобы задать регулярное выражение - все попадающие под него пути будут невидимы
-для данного хука.
+All hooks obey flake8's exclude parameter in setup.cfg: `setup.cfg -> [flake8] -> exclude`.
+Any path listed there will not be checked.
 
-## Доступные хуки
+Per-hook excludes can be configured with regular expression(s) in
+`exclude` parameter of a hook configuration in `.pre-commit-config.yaml`
+
+## Available hooks
 
 ### `validate_ajustable_complexity`
 
-Аналог [flake8-adjustable-complexity](https://github.com/best-doctor/flake8-adjustable-complexity), находит и ругается
-на сложные функции (cyclomatic complexity > 8) с переменными со слишком общими именами.
+Analogous to [flake8-adjustable-complexity](https://github.com/best-doctor/flake8-adjustable-complexity),
+this validator complains about:
+* functions with high (>8) cyclomatic complexity
+* variables with too "generic" names (like `items`, `foo`, `vals`, `vars` etc.).
 
-Параметры:
+Configuration options:
 
-- `setup.cfg -> [flake8] -> adjustable-default-max-complexity` - значение сложности функции при котором срабатывает валидатор
-- `setup.cfg -> [flake8] -> per-path-max-complexity` - список 'имя_файла: сложность' для того чтобы перекрыть значение
-  сложности на уровне конкретного файла
+- `setup.cfg -> [flake8] -> adjustable-default-max-complexity` - maximum allowed cyclomatic complexity
+- `setup.cfg -> [flake8] -> per-path-max-complexity` - a list of 'file_name: complexity',
+  each item containing max complexity override for a file.
 
 ### `validate_amount_of_py_file_lines`
 
-Проверяет количество строк в Python-файлах - по умолчанию срабатывает когда в файле больше 1000 строк.
-
-Параметры:
-
-- `--lines n` - максимальное количество строк (по умолчанию - 1000)
+Ensures a file does not contain more than `--lines n` lines (default: 1000).
 
 ### `validate_api_schema_annotations`
 
-Проверяет правильности аннотаций для генерации схемы:
+Validates API schema annotations:
 
-- параметр schema_tags для вьюх и вьюсетов (check_schema_tags_presence_in_views_and_viewsets)
-- есть докстринги у View/ViewSet и Serializer (check_docstring)
-- help_text для атрибутов сериализаторов (check_help_text_attribute_in_serializer_fields)
-- у ViewSet определен serializer_class_map (check_viewset_has_serializer_class_map)
-- у ViewSet lookup_field != ‘id’ (check_viewset_lookup_field_has_valid_value)
-- SerializerMethodField должны быть обернуты в SchemaWrapper (если функция возвращает не str)
-- docstring-и для action-методов вьюх и вьюсетов (get/put/post/patch/delete, кастомные action)
+- View/ViewSet defines `schema_tags` parameter (check_schema_tags_presence_in_views_and_viewsets)
+- View/ViewSet/Serializer has a docstring (check_docstring)
+- Serializer's attributes have `help_text` parameter (check_help_text_attribute_in_serializer_fields)
+- ViewSet defines `serializer_class_map` (check_viewset_has_serializer_class_map)
+- ViewSet's `lookup_field` != `id` (check_viewset_lookup_field_has_valid_value)
+- `SerializerMethodField` is wrapped into `SchemaWrapper` (unless method's return type is `str`)
+- View's/ViewSet's actions have docstrings (get/put/post/patch/delete, custom `action`s)
 
 ### `validate_django_null_true_comments`
 
-Проверяет что все nullable-поля в Django моделях помечены как `# null_by_design` или `#null_for_compatibility`
+All nullable fields in django models have to be commented with `# null_by_design` and/or `# null_for_compatibility`
 
 ### `validate_django_model_field_names`
 
-Проверяет соответствие именования полей Django-моделей гайдлайнам
+Validates django models' field names against BestDoctor guidelines.
 
 ### `validate_expressions_complexity`
 
-Проверяет "сложность" блоков кода (функции, классы, циклы, блоки условных операторов) на превышение порогового значения
-(9, не конфигурируется)
+Ensures code block's (function, class, loop, if-expr) complexity <= 9 (unconfigurable)
 
 ### `validate_graphql_model_fields_definition`
 
-Проверяет что GraphQL-типы из `graphene-django` содержат метаданные с перечислением полей которые доступны в GraphQL
-запросах - необходимо чтобы случайно не выставить наружу данные которые должны быть скрыты от пользователей.
+Forces GraphQL types (`graphene-django`) to explicitly define accessible fields in `class Meta`.
+Just to make sure you won't expose data you'd better not to.
 
 ### `validate_no_asserts`
 
-Проверяет что Python-файлы не содержат инструкции `assert`
+Prohibits `assert` statements in python files (ignores tests, of course).
 
 ### `validate_no_forbidden_imports`
 
-Проверяет что Python-файлы не содержат импортов запрещенных модулей
+Forbids blacklisted imports
 
-Параметры:
+Configuration:
 
-- `setup.cfg -> [project_structure] -> forbidden_imports` - список модулей которые запрещено импортировать
+- `setup.cfg -> [project_structure] -> forbidden_imports` - a list of blacklisted modules' names
 
 ### `validate_old_style_annotations`
 
-Проверяет что аннотации типов не содержат строковых литералов
+Makes sure type annotations are not string literals
 
 ### `validate_package_structure`
 
-Валидатор структуры модуля.
+module structure validator. Checks if:
 
-Вот что он проверяет:
-
-- в models.py только модели
-- Все Enum в enums.py
-- Нет файлов с суффиксом \_utils/\_helpers (им место в в utils)
-- нет пустых файлов кроме инитов
-- во views.py только классовые вьюхи
-- в urls.py есть urlpatterns и в нём path, а не url
+- `models.py` contains only model definitions
+- all `Enum`s are defined in `enums.py`
+- File's name doesn't end with `_utils`/`_helpers` postfix (place 'em in `utils/`)
+- There are no empty files (`__init__.py` excluded)
+- There are only class-based views in `views.py`
+- `urls.py` contains `urlpatterns` and `urlpatterns` contain `path`s, not `url`s
 
 ### `validate_settings_variables`
 
-Проверяет что в `settings` нет переменных, которые нельзя переопределить через переменные окружения. Требует к каждой
-строчке конфигов использования getenv или Value() или аналога, либо одного из комментариев
-`# noqa: allowed straight assignment` или `# noqa: static object`.
+Requires all settings from `DJANGO_SETTINGS` module to be configurable with environment variables.
+Checks that each setting contains an `ast.Call` (assuming it's `getenv()`, `values.Value()`, etc.) or
+is commented with `# noqa: allowed straight assignment` / `# noqa: static object`.
 
 ### `validate_test_namings`
 
-Проверяет что все тестовые функции начинаются с `test_` или `_`
+Forces all tests names to start with either `test_` or `_`.
 
 ### `check-gitleaks`
 
-Проверяет что в код не попадут незашифрованные пароли, токены и ключи.
-Данный хук требует установленную утилиту [gitleaks](https://github.com/zricethezav/gitleaks). Для этого достаточно скачать [бинарник](https://github.com/zricethezav/gitleaks/releases) и положить его в каталог, который прописан в `$PATH`. Например для linux:
+Makes sure a password/token/apikey accidentally left in one of your tracked files won't make its way into outer world.
+Requires [gitleaks](https://github.com/zricethezav/gitleaks) to run.
+Installation is as easy as downloading [a binary](https://github.com/zricethezav/gitleaks/releases)
+and dropping it somewhere in your `$PATH`.
 
+Linux:
 ```shell script
 wget https://github.com/zricethezav/gitleaks/releases/download/v7.3.0/gitleaks-linux-amd64
 sudo mv gitleaks-linux-amd64 /usr/local/bin/gitleaks
 chmod +x /usr/local/bin/gitleaks
 ```
 
-Для `MacOSX` можно установить также с помощью [homebrew](https://brew.sh):
+[homebrew](https://brew.sh) does the job if you're on `MacOS`:
 ```shell script
 brew install gitleaks
 ```
 
-## Разработка
+## Setting up development environment
 
-Этот репозиторий использует [`pip-tools`](https://github.com/jazzband/pip-tools) для работы с пакетами поэтому перед
-установкой зависимостей проекта нужно установить `pip-tools`:
+This repo relies on [`pip-tools`](https://github.com/jazzband/pip-tools) as a package manager:
 
 ```shell script
 pip install pip-tools
 ```
 
-Зависимости разбиты на packages (`requirements.txt`) и packages-dev (`requirements_dev.txt`) Перечни пакетов с указанием
-версий находятся в файлах `requirements.in` и `requirements_dev.in` и залочены в файлах `requirements.txt` и
-`requirements_dev.txt` соответственно, установка зависимостей делается командой:
+Project dependencies are **locked** in two files:
+`requirements.txt` (mandatory) and `requirements_dev.txt` (development only).
+
+These are used to install dependencies when building or setting up a project.
 
 ```shell script
 make install
 ```
+will handle this for you.
 
-Для установки нового пакета нужно добавить новую зависимость в файл `requirements.in` или `requirements_dev.in` и
-выполнить:
+### Local development & testing
 
-```shell script
-make lock
-```
+#### Managing project dependencies:
+1. Edit `requirements.in` / `requirements_dev.in` as per your needs.
 
-`make lock` генерирует `requirements.txt` и `requirements_dev.txt`, которые используются для установки зависимостей при
-билде. Их нужно закоммитить вместе с `requirements.in`.
+2. Lock dependencies.
+   ```shell script
+   # this generates 'requirements.txt' and 'requirements_dev.txt'
+   make lock
+   ```
 
+3. Stage & commit all `requirements*` files.
 
-### Использование локально разрабатываемой копии pre-commit-hooks
+#### Creating a hook:
 
-#### Создаём новый хук
-
-Скопировали какой-нибудь существующий хук, написали нужный код, затем дописываем в `.pre-commit-hooks.yaml`:
+Copy an existing hook, rename it and make it do something useful.
+Next, register it in `.pre-commit-hooks.yaml`:
 ```yaml
-- id: panzerfaust  # это имя хука
+- id: panzerfaust
   name: Fausts panzers
-  entry: panzerfaustize  # это имя, определённое в setup.cfg
+  entry: panzerfaustize  # that's the name you define in setup.cfg (see below)
   language: python
 ```
 
-Зарегистрируем в `setup.cfg`:
+In `setup.cfg` too:
 ```сfg
 [options.entry_points]
 console_scripts =
-    ; ссылаемся на файл hooks/panzerfaustize.py
+    ; references hooks/panzerfaustize.py
     panzerfaustize = hooks.panzerfaustize:main
 ```
 
-#### Тестим хук из локальной репы
+#### Running hooks from local repo:
 
-Затрекаем новый хук или его изменения, а то `try-repo` не подхватит
+Ensure your hook is **tracked**, or `try-repo` won't load it:
 ```shell script
 git add hooks/panzerfaustize.py
 ```
 
 ```shell script
-# идём в подопытную репу и выполняем там:
+# execute this in a repo were you want your pre-commit hooks ran
 pre-commit try-repo ../my-pre-commit-hooks/ panzerfaust\
   --files=./src/killroy.py\
   --files=./src/was.py\
