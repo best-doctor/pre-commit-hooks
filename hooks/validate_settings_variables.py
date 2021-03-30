@@ -44,17 +44,61 @@ def is_node_straight_assignment(node: ast.AST, parent: ast.AST, child_idx: int) 
     return is_node_straight_assignment
 
 
+def is_node_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> bool:
+    """
+    Check that we don't use os.getenv to get settings value.
+    """
+    if not (
+        isinstance(parent, (ast.List, ast.Assign, ast.Tuple))
+        or (
+            isinstance(parent, (ast.Dict))
+            and is_child_node_a_dict_value(child_idx, parent)
+        )
+    ):
+        return False
+    # os.environ['foo']
+    if isinstance(node, ast.Subscript):
+        target_node = node.value
+        if (
+                isinstance(target_node, ast.Attribute)
+                and target_node.value.id == 'os'   # type: ignore
+                and target_node.attr == 'environ'
+        ):
+            return True
+    if not isinstance(node, ast.Call):
+        return False
+    # getenv('foo', '')
+    if isinstance(node.func, ast.Name):
+        return node.func.id == 'getenv'
+    elif isinstance(node.func, ast.Attribute):
+        target_node = node.func
+        # os.getenv('foo', '')
+        if isinstance(target_node.value, ast.Name):
+            if target_node.value.id == 'os':
+                if target_node.attr == 'getenv':
+                    return True
+        # os.environ.get('foo', '')
+        else:
+            if target_node.value.value.id == 'os':  # type: ignore
+                if target_node.value.attr == 'environ':  # type: ignore
+                    return True
+    return False
+
+
 def get_line_numbers_of_wrong_assignments(
     node: ast.AST,
     ast_content: typing.Optional[str],
     parent: ast.AST,
     child_idx: int,
-) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
+) -> typing.Tuple[typing.Set[int], typing.Set[int], typing.Set[int]]:
     lines_with_straight_assignment: typing.Set[int] = set()
     lines_with_static_objects: typing.Set[int] = set()
+    lines_with_getenv: typing.Set[int] = set()
 
+    if is_node_getenv_call(node, parent, child_idx):
+        lines_with_getenv.add(node.lineno)
     if isinstance(node, (ast.Call)):
-        return set(), set()
+        return set(), set(), lines_with_getenv
 
     if is_node_static(node):
         lines_with_static_objects.add(node.lineno)
@@ -64,14 +108,20 @@ def get_line_numbers_of_wrong_assignments(
     elif not is_node_static(node):
         child_idx = 0
         for child_node in ast.iter_child_nodes(node):
-            child_in_straight_assignment, child_in_static_objects = get_line_numbers_of_wrong_assignments(
-                child_node, ast_content, node, child_idx)
+            (
+                child_in_straight_assignment,
+                child_in_static_objects,
+                child_in_getenv,
+            ) = get_line_numbers_of_wrong_assignments(
+                child_node, ast_content, node, child_idx
+            )
             lines_with_straight_assignment.update(child_in_straight_assignment)
             lines_with_static_objects.update(child_in_static_objects)
+            lines_with_getenv.update(child_in_getenv)
             child_idx += 1
 
     lines_with_static_objects = lines_with_static_objects.difference(lines_with_straight_assignment)
-    return lines_with_straight_assignment, lines_with_static_objects
+    return lines_with_straight_assignment, lines_with_static_objects, lines_with_getenv
 
 
 def exclude_lines_with_noqa(filepath: str) -> typing.Set[int]:
@@ -98,10 +148,14 @@ def main() -> typing.Optional[int]:
             continue
 
         lines_with_noqa = exclude_lines_with_noqa(settings_filepath)
-        lines_with_straight_assignment, lines_with_static_objects = get_line_numbers_of_wrong_assignments(
-            ast_tree, ast_content, ast_tree, 0)
+        (
+            lines_with_straight_assignment,
+            lines_with_static_objects,
+            lines_with_getenv,
+        ) = get_line_numbers_of_wrong_assignments(ast_tree, ast_content, ast_tree, 0)
         lines_with_straight_assignment = lines_with_straight_assignment.difference(lines_with_noqa)
         lines_with_static_objects = lines_with_static_objects.difference(lines_with_noqa)
+        lines_with_getenv = lines_with_getenv.difference(lines_with_noqa)
 
         for line_number in sorted(lines_with_straight_assignment):
             print(f'{settings_filepath}:{line_number} : straight assignment')  # noqa: T001

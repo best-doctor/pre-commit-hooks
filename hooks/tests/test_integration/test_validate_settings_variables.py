@@ -16,25 +16,42 @@ from hooks.validate_settings_variables import exclude_lines_with_noqa, get_line_
             'VAR': values.Value('value', ''),
         }
         """,
-            ({2}, set())),
+            ({2}, set(), {3})),
+        ("""
+        DICT = {
+            'VAR': os.environ['value'],
+            'VAR': os.environ.get('value', ''),
+            'VAR': getenv('value', ''),
+            'VAR': os.getenv('value', ''),
+        }
+        """,
+            (set(), set(), {2, 3, 4, 5})),
         ("""
         class Foo:
             VAR = 'value'
+            VAR = os.getenv('value', '')
             VAR = logging.getLogger('value')
         """,
-            ({2}, set())),
+            ({2}, set(), {3})),
         ("""
         LIST = [
             'value',
             ]
         """,
-            (set(), {1})),
+            (set(), {1}, set())),
         ("""
         LIST = [
             values.Value(None),
             ]
         """,
-         (set(), set())),
+         (set(), set(), set())),
+        ("""
+        LIST = [
+            'value',
+            os.getenv('value', ''),
+            ]
+        """,
+         ({2}, set(), {3})),
     ],
 )
 def test_get_numbers_of_wrong_lines(file_line, expected_result):
