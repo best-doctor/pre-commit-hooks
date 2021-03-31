@@ -43,18 +43,13 @@ def iterate_files_in(path: str, dirs_to_exclude: List[str], file_extension: str)
             yield filepath
 
 
-def get_ast_tree_with_content(pyfilepath: str, set_parents: bool = False) -> Tuple[Optional[ast.Module], Optional[str]]:
+def get_ast_tree_with_content(pyfilepath: str) -> Tuple[Optional[ast.Module], Optional[str]]:
     with open(pyfilepath, 'r') as file_handler:
         try:
             file_content = file_handler.read()
         except UnicodeDecodeError:
             return None, None
     ast_tree = ast.parse(file_content)
-    if set_parents:
-        for node in ast.walk(ast_tree):
-            for child in ast.iter_child_nodes(node):
-                child.parent = node  # type: ignore
-        ast_tree.parent = None  # type: ignore
     return ast_tree, file_content
 
 

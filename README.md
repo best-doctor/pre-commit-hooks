@@ -190,7 +190,5 @@ git add hooks/panzerfaustize.py
 ```shell script
 # execute this in a repo were you want your pre-commit hooks ran
 pre-commit try-repo ../my-pre-commit-hooks/ panzerfaust\
-  --files=./src/killroy.py\
-  --files=./src/was.py\
-  --files=./src/here.py
+  --files ./src/killroy.py ./src/was.py ./src/here.py
 ```
