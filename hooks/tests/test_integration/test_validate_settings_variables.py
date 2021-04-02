@@ -4,7 +4,12 @@ import ast
 
 import pytest
 
-from hooks.validate_settings_variables import exclude_lines_with_noqa, get_line_numbers_of_wrong_assignments
+from hooks.validate_settings_variables import (
+    LineError,
+    Reasons,
+    exclude_lines_with_noqa,
+    get_line_numbers_of_wrong_assignments,
+)
 
 
 @pytest.mark.parametrize(
@@ -16,7 +21,11 @@ from hooks.validate_settings_variables import exclude_lines_with_noqa, get_line_
             'VAR': values.Value('value', ''),
         }
         """,
-            ({2}, set(), {3})),
+            [
+                LineError(2, Reasons.STRAIGHT_ASSIGNMENT),
+                LineError(3, Reasons.GETENV),
+            ],
+         ),
         ("""
         DICT = {
             'VAR': os.environ['value'],
@@ -25,33 +34,50 @@ from hooks.validate_settings_variables import exclude_lines_with_noqa, get_line_
             'VAR': os.getenv('value', ''),
         }
         """,
-            (set(), set(), {2, 3, 4, 5})),
+            [
+                LineError(2, Reasons.GETENV),
+                LineError(3, Reasons.GETENV),
+                LineError(4, Reasons.GETENV),
+                LineError(5, Reasons.GETENV),
+            ],
+         ),
         ("""
         class Foo:
             VAR = 'value'
             VAR = os.getenv('value', '')
             VAR = logging.getLogger('value')
         """,
-            ({2}, set(), {3})),
+            [
+                LineError(2, Reasons.STRAIGHT_ASSIGNMENT),
+                LineError(3, Reasons.GETENV),
+            ],
+         ),
         ("""
         LIST = [
             'value',
             ]
         """,
-            (set(), {1}, set())),
+            [
+                LineError(1, Reasons.STATIC_OBJECT),
+            ],
+         ),
         ("""
         LIST = [
             values.Value(None),
             ]
         """,
-         (set(), set(), set())),
+         []),
         ("""
         LIST = [
             'value',
             os.getenv('value', ''),
             ]
         """,
-         ({2}, set(), {3})),
+            [
+                LineError(2, Reasons.STRAIGHT_ASSIGNMENT),
+                LineError(3, Reasons.GETENV),
+            ],
+         ),
     ],
 )
 def test_get_numbers_of_wrong_lines(file_line, expected_result):
