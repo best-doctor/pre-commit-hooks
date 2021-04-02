@@ -5,6 +5,7 @@ import dataclasses
 import enum
 import tokenize
 import typing
+from collections import deque
 
 from hooks.utils.ast_helpers import get_ast_tree_with_content
 from hooks.utils.pre_commit import get_input_files
@@ -69,6 +70,110 @@ def is_node_straight_assignment(node: ast.AST, parent: ast.AST, child_idx: int) 
     return False
 
 
+@dataclasses.dataclass
+class AstRule:
+    # тут должен быть тип ast.AST, но я не смог заставить mypy с ним работать
+    ast_type: typing.Any
+    attrs: typing.Dict[str, typing.Union[str, 'AstRule']]
+
+
+def check_rule(root_rule: AstRule, root_node: ast.AST) -> bool:
+    stack: typing.Deque[typing.Tuple[AstRule, ast.AST]] = deque()
+    stack.append((root_rule, root_node))
+    while stack:
+        rule, node = stack.pop()
+        if not isinstance(node, rule.ast_type):
+            return False
+        for name, value in rule.attrs.items():
+            if isinstance(value, AstRule):
+                child_node = getattr(node, name, None)
+                if child_node is None:
+                    return False
+                stack.append((value, child_node))
+            else:
+                if value != getattr(node, name, None):
+                    return False
+    return True
+
+
+GETENV_RULES = [
+    # os.environ['foo']
+    # "Subscript(value=Attribute(value=Name(id='os', ctx=Load()), attr='environ', "
+    # "ctx=Load()), slice=Index(value=Constant(value='foo', kind=None)), "
+    # 'ctx=Load())'
+    AstRule(
+        ast.Subscript,
+        {
+            'value': AstRule(
+                ast.Attribute,
+                {
+                    'attr': 'environ',
+                    'value': AstRule(ast.Name, {'id': 'os'}),
+                },
+            ),
+        },
+    ),
+    # getenv('foo', '')
+    # "Call(func=Name(id='getenv', ctx=Load()), args=[Constant(value='foo', "
+    # "kind=None), Constant(value='', kind=None)], keywords=[])"
+    AstRule(
+        ast.Call,
+        {
+            'func': AstRule(
+                ast.Name,
+                {'id': 'getenv'},
+            ),
+        },
+    ),
+    # os.getenv('foo', '')
+    # "Call(func=Attribute(value=Name(id='os', ctx=Load()), attr='getenv', "
+    # "ctx=Load()), args=[Constant(value='foo', kind=None), Constant(value='', "
+    # 'kind=None)], keywords=[])'
+    AstRule(
+        ast.Call,
+        {
+            'func': AstRule(
+                ast.Attribute,
+                {
+                    'attr': 'getenv',
+                    'value': AstRule(
+                        ast.Name,
+                        {'id': 'os'},
+                    ),
+                },
+            ),
+        },
+    ),
+    # os.environ.get('foo', '')
+    # "Call(func=Attribute(value=Attribute(value=Name(id='os', ctx=Load()), "
+    # "attr='environ', ctx=Load()), attr='get', ctx=Load()), "
+    # "args=[Constant(value='foo', kind=None), Constant(value='', kind=None)], "
+    # 'keywords=[])'
+    AstRule(
+        ast.Call,
+        {
+            'func': AstRule(
+                ast.Attribute,
+                {
+                    'value': AstRule(
+                        ast.Attribute,
+                        {
+                            'attr': 'environ',
+                            'value': AstRule(
+                                ast.Name,
+                                {
+                                    'id': 'os',
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+]
+
+
 def is_node_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> bool:
     """
     Check that we don't use os.getenv to get settings value.
@@ -81,33 +186,7 @@ def is_node_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> bool:
         )
     ):
         return False
-    # os.environ['foo']
-    if isinstance(node, ast.Subscript):
-        target_node = node.value
-        if (
-            isinstance(target_node, ast.Attribute)
-            and target_node.value.id == 'os'  # type: ignore
-            and target_node.attr == 'environ'
-        ):
-            return True
-    if not isinstance(node, ast.Call):
-        return False
-    # getenv('foo', '')
-    if isinstance(node.func, ast.Name):
-        return node.func.id == 'getenv'
-    elif isinstance(node.func, ast.Attribute):
-        target_node = node.func
-        # os.getenv('foo', '')
-        if isinstance(target_node.value, ast.Name):
-            if target_node.value.id == 'os':
-                if target_node.attr == 'getenv':
-                    return True
-        # os.environ.get('foo', '')
-        else:
-            if target_node.value.value.id == 'os':  # type: ignore
-                if target_node.value.attr == 'environ':  # type: ignore
-                    return True
-    return False
+    return any([check_rule(rule, node) for rule in GETENV_RULES])
 
 
 def get_line_numbers_of_wrong_assignments(

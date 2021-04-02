@@ -19,6 +19,9 @@ from hooks.validate_settings_variables import (
             'VAR': 'value',
             'VAR': os.getenv('value', ''),
             'VAR': values.Value('value', ''),
+            'VAR': timedelta(
+                seconds=values.IntegerValue(60 * 60, environ_name='SIMPLE_JWT_ACCESS_TOKEN_LIFETIME')
+            ),
         }
         """,
             [
