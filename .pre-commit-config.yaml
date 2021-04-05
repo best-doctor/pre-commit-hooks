@@ -54,6 +54,7 @@ repos:
   - id: expr-complexity
     name: Check expressions complexity
     entry: python hooks/validate_expressions_complexity.py
+    exclude: /samples/
     language: python
   - id: no-asserts
     name: Check no asserts in code

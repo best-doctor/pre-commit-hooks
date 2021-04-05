@@ -25,6 +25,7 @@ NODE_TYPES_BY_CLASS = [
         (
             ast.Expr, ast.Return, ast.Starred, ast.Index,
             ast.Yield, ast.YieldFrom, ast.FormattedValue,
+            ast.Await,
         ),
         'item_with_value',
     ),
