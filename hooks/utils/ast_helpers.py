@@ -109,10 +109,19 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
 
 
 def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
-    nodes_with_subnodes = (ast.FunctionDef, ast.If, ast.For, ast.Module, ast.ClassDef, ast.Try, ast.With, ast.While)
+    nodes_with_subnodes = (
+        ast.AsyncFunctionDef, ast.FunctionDef,
+        ast.If,
+        ast.AsyncFor, ast.For,
+        ast.Module,
+        ast.ClassDef,
+        ast.Try,
+        ast.AsyncWith, ast.With,
+        ast.While,
+    )
     if isinstance(node, (ast.If, ast.While)):
         yield node.test
-    elif isinstance(node, ast.For):
+    elif isinstance(node, (ast.AsyncFor, ast.For)):
         yield node.iter
     nodes_to_iter = node.body  # type: ignore
     if isinstance(node, ast.Try):
