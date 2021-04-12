@@ -184,32 +184,37 @@ def find_node_with_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -
     return None
 
 
+def find_line_errors(
+    node: ast.AST,
+    ast_content: typing.Optional[str],
+    parent: ast.AST,
+    child_idx: int = 0,
+) -> typing.Iterator[LineError]:
+    bad_node = find_node_with_getenv_call(node, parent, child_idx)
+    if bad_node:
+        yield LineError(bad_node.lineno, Reasons.GETENV)
+    if isinstance(node, (ast.Call)):
+        return
+
+    if is_node_static(node):
+        yield LineError(node.lineno, Reasons.STATIC_OBJECT)
+
+    if is_node_straight_assignment(node, parent, child_idx):
+        yield LineError(node.lineno, Reasons.STRAIGHT_ASSIGNMENT)
+    elif not is_node_static(node):
+        for child_idx, child_node in enumerate(ast.iter_child_nodes(node)):
+            yield from find_line_errors(
+                child_node, ast_content, node, child_idx
+            )
+
+
 def get_line_numbers_of_wrong_assignments(
     node: ast.AST,
     ast_content: typing.Optional[str],
     parent: ast.AST,
-    child_idx: int,
 ) -> typing.Sequence[LineError]:
-    line_errors: typing.List[LineError] = []
+    line_errors: typing.List[LineError] = list(find_line_errors(node, ast_content, parent))
 
-    bad_node = find_node_with_getenv_call(node, parent, child_idx)
-    if bad_node:
-        line_errors.append(LineError(bad_node.lineno, Reasons.GETENV))
-    if isinstance(node, (ast.Call)):
-        return line_errors
-
-    if is_node_static(node):
-        line_errors.append(LineError(node.lineno, Reasons.STATIC_OBJECT))
-
-    if is_node_straight_assignment(node, parent, child_idx):
-        line_errors.append(LineError(node.lineno, Reasons.STRAIGHT_ASSIGNMENT))
-    elif not is_node_static(node):
-        for child_idx, child_node in enumerate(ast.iter_child_nodes(node)):
-            line_errors.extend(
-                get_line_numbers_of_wrong_assignments(
-                    child_node, ast_content, node, child_idx
-                )
-            )
     uniq_errors: typing.Set[LineError] = set()
     result = []
     for line_error in sorted(line_errors, key=lambda le: le.lineno):
@@ -247,7 +252,7 @@ def main() -> typing.Optional[int]:
         line_errors = [
             line_error
             for line_error in get_line_numbers_of_wrong_assignments(
-                ast_tree, ast_content, ast_tree, 0
+                ast_tree, ast_content, ast_tree
             )
             if line_error.lineno not in lines_with_noqa
         ]

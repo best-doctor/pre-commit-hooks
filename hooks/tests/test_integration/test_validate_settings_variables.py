@@ -88,7 +88,7 @@ from hooks.validate_settings_variables import (
 def test_get_numbers_of_wrong_lines(file_line, expected_result):
     content = ast.parse(file_line.strip()).body[0]
 
-    assert get_line_numbers_of_wrong_assignments(content, content, content, 0) == expected_result
+    assert get_line_numbers_of_wrong_assignments(content, content, content) == expected_result
 
 
 @pytest.mark.parametrize(
