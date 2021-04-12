@@ -19,9 +19,6 @@ from hooks.validate_settings_variables import (
             'VAR': 'value',
             'VAR': os.getenv('value', ''),
             'VAR': values.Value('value', ''),
-            'VAR': timedelta(
-                seconds=values.IntegerValue(60 * 60, environ_name='SIMPLE_JWT_ACCESS_TOKEN_LIFETIME')
-            ),
         }
         """,
             [
@@ -35,6 +32,9 @@ from hooks.validate_settings_variables import (
             'VAR': os.environ.get('value', ''),
             'VAR': getenv('value', ''),
             'VAR': os.getenv('value', ''),
+            'VAR': foo(os.getenv('foo', '')),
+            'VAR': foo(bar=values.Value('value', '')),
+            'VAR': os.getenv('value', '').lower(),
         }
         """,
             [
@@ -42,6 +42,8 @@ from hooks.validate_settings_variables import (
                 LineError(3, Reasons.GETENV),
                 LineError(4, Reasons.GETENV),
                 LineError(5, Reasons.GETENV),
+                LineError(6, Reasons.GETENV),
+                LineError(8, Reasons.GETENV),
             ],
          ),
         ("""

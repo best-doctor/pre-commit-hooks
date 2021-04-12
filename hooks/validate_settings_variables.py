@@ -22,7 +22,7 @@ class Reasons(enum.Enum):
     GETENV = 'getenv usage'
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class LineError:
     lineno: int
     reason: Reasons
@@ -174,19 +174,14 @@ GETENV_RULES = [
 ]
 
 
-def is_node_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> bool:
+def find_node_with_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> typing.Optional[ast.AST]:
     """
-    Check that we don't use os.getenv to get settings value.
+    Find node, where getenv is called.
     """
-    if not (
-        isinstance(parent, (ast.List, ast.Assign, ast.Tuple))
-        or (
-            isinstance(parent, (ast.Dict))
-            and is_child_node_a_dict_value(child_idx, parent)
-        )
-    ):
-        return False
-    return any([check_rule(rule, node) for rule in GETENV_RULES])
+    for n in ast.walk(node):
+        if any([check_rule(rule, n) for rule in GETENV_RULES]):
+            return n
+    return None
 
 
 def get_line_numbers_of_wrong_assignments(
@@ -197,8 +192,9 @@ def get_line_numbers_of_wrong_assignments(
 ) -> typing.Sequence[LineError]:
     line_errors: typing.List[LineError] = []
 
-    if is_node_getenv_call(node, parent, child_idx):
-        line_errors.append(LineError(node.lineno, Reasons.GETENV))
+    bad_node = find_node_with_getenv_call(node, parent, child_idx)
+    if bad_node:
+        line_errors.append(LineError(bad_node.lineno, Reasons.GETENV))
     if isinstance(node, (ast.Call)):
         return line_errors
 
@@ -214,7 +210,14 @@ def get_line_numbers_of_wrong_assignments(
                     child_node, ast_content, node, child_idx
                 )
             )
-    return line_errors
+    uniq_errors: typing.Set[LineError] = set()
+    result = []
+    for line_error in sorted(line_errors, key=lambda le: le.lineno):
+        if line_error in uniq_errors:
+            continue
+        uniq_errors.add(line_error)
+        result.append(line_error)
+    return result
 
 
 def exclude_lines_with_noqa(filepath: str) -> typing.Set[int]:
