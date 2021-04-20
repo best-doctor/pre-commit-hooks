@@ -2,8 +2,6 @@
   name: Check functions complexity
   entry: validate_ajustable_complexity
   language: python
-  additional_dependencies:
-    - mccabe
 
 - id: expr-complexity
   name: Check expressions complexity
@@ -19,8 +17,6 @@
   name: Check if all nullable fields are annotated
   entry: validate_django_null_true_comments
   language: python
-  additional_dependencies:
-    - redbaron
 
 - id: django-model-field-names
   name: Check Django model field names

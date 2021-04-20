@@ -43,14 +43,12 @@ repos:
     exclude: hooks/tests
 
 - repo: https://github.com/best-doctor/pre-commit-hooks
-  rev: v1.0.0
+  rev: v1.0.2
   hooks:
   - id: mccabe-complexity
     name: Check functions complexity
     entry: python hooks/validate_ajustable_complexity.py
     language: python
-    additional_dependencies:
-      - mccabe
   - id: expr-complexity
     name: Check expressions complexity
     entry: python hooks/validate_expressions_complexity.py
