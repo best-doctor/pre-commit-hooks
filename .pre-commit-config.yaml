@@ -37,7 +37,7 @@ repos:
   - id: flake8
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.770
+  rev: v0.812
   hooks:
   - id: mypy
     exclude: hooks/tests
