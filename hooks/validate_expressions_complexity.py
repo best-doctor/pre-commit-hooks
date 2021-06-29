@@ -57,6 +57,7 @@ NODE_TYPES_BY_CLASS = [
         'simple_type',
     ),
     (ast.Global, 'global'),
+    (ast.NamedExpr, 'walrus'),
 ]
 
 NODE_COMPLEXITY_BY_TYPE = {
@@ -83,6 +84,7 @@ NODE_COMPLEXITY_BY_TYPE = {
     'simple_type': 0,
     'fstring': 2,
     'global': 1,
+    'walrus': 1,
 }
 
 
@@ -110,6 +112,7 @@ NODE_TYPE_SUBNODE_GETTERS = {
     'attribute': lambda node: [node.value],
     'simple_type': lambda node: [],
     'global': lambda node: [],
+    'walrus': lambda node: [node.target, node.value],
 }
 
 
