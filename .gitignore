@@ -56,3 +56,4 @@ dmypy.json
 
 # Editors/IDEs
 .vscode
+.idea/*

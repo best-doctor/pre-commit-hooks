@@ -43,31 +43,25 @@ repos:
     exclude: hooks/tests
 
 - repo: https://github.com/best-doctor/pre-commit-hooks
-  rev: v1.0.2
+  rev: v1.0.3
   hooks:
   - id: mccabe-complexity
     name: Check functions complexity
-    entry: python hooks/validate_ajustable_complexity.py
     language: python
   - id: expr-complexity
     name: Check expressions complexity
-    entry: python hooks/validate_expressions_complexity.py
     exclude: /samples/
     language: python
   - id: no-asserts
     name: Check no asserts in code
-    entry: python hooks/validate_no_asserts.py
     language: python
     exclude: /tests/
   - id: test-naming
     name: Check if tests named appropriately
-    entry: python hooks/validate_test_namings.py
     language: python
   - id: line-count
     name: Check number of lines in python files
-    entry: python hooks/validate_amount_of_py_file_lines.py
     language: python
   - id: old-style-annotations
     name: Check old-style annotations
-    entry: python hooks/validate_old_style_annotations.py
     language: python
