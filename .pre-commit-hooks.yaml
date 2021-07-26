@@ -37,7 +37,6 @@
   name: Check api schema annotations
   entry: validate_api_schema_annotations
   language: python
-  language_version: "3.8"
 
 - id: old-style-annotations
   name: Check old-style annotations
