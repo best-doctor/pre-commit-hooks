@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import sys
 import typing
 
 from hooks.utils.ast_helpers import (
@@ -212,6 +213,9 @@ def _is_allowed_return_type(return_node: typing.Union[ast.Name, ast.Subscript]) 
         return return_node.id in allowed_return_types
 
     if isinstance(return_node, ast.Subscript):
+        if sys.version_info >= (3, 9):
+            return return_node.slice.id in allowed_return_types
+
         return return_node.slice.value.id in allowed_return_types  # type: ignore
 
     return False
