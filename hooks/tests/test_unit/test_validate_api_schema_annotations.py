@@ -274,6 +274,12 @@ def test_help_text_attribute_in_serializer_fields(
         """, [],
     ),
     (
+        """class Test(GenericViewSet):
+                some_field = 'some_value'
+                serializer_class_map: SerializerClassMap = ...
+            """, [],
+    ),
+    (
         """class Test(ListAPIView):
             pass
         """, [],

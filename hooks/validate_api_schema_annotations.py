@@ -138,6 +138,8 @@ def check_help_text_attribute_in_serializer_fields(node: ast.ClassDef, file_path
 
 def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
     for assign in get_classdef_assignments(node):
+        if isinstance(assign, ast.AnnAssign):
+            return attribute == assign.target.id  # type: ignore
         assign_targets_names = [target.id for target in assign.targets]  # type: ignore
 
         if attribute in assign_targets_names:
@@ -161,12 +163,12 @@ def check_schema_tags_presence_in_views_and_viewsets(node: ast.ClassDef, file_pa
 
 def check_viewset_has_serializer_class_map(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что у ViewSet определен serializer_class_map."""
-    serializer_class_map_attirbute = 'serializer_class_map'
+    serializer_class_map_attribute = 'serializer_class_map'
 
     if _is_api_viewset(node) is False:
         return []
 
-    if _check_classdef_hasattr(node, serializer_class_map_attirbute):
+    if _check_classdef_hasattr(node, serializer_class_map_attribute):
         return []
 
     return [f':{node.lineno} {node.name} missed `serializer_class_map` attribute']

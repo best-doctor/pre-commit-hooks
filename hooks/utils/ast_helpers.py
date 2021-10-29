@@ -57,13 +57,15 @@ def get_ast_tree(pyfilepath: str) -> Optional[ast.Module]:
     return get_ast_tree_with_content(pyfilepath)[0]
 
 
-def get_classdef_assignments(node: ast.ClassDef) -> Iterable[ast.Assign]:
+def get_classdef_assignments(node: ast.ClassDef) -> Iterable[ast.Assign | ast.AnnAssign]:
     for node_element in node.body:
-        if isinstance(node_element, ast.Assign):
+        if isinstance(node_element, (ast.Assign, ast.AnnAssign)):
             yield node_element
 
 
-def get_assign_name(node: ast.Assign) -> str:
+def get_assign_name(node: ast.Assign | ast.AnnAssign) -> str:
+    if isinstance(node, ast.AnnAssign):
+        return node.target.id  # type: ignore
     if node.targets[0]:
         return node.targets[0].id  # type: ignore
 
