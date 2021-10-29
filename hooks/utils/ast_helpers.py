@@ -5,9 +5,9 @@ import itertools
 import os
 from typing import Any, Callable, Iterable, Iterator, List, Optional, Set, Tuple, Type, Union
 
+from hooks.utils.common_types import AssignOrAnnAssign
 from hooks.utils.list_utils import flat
 from hooks.utils.mypy_api_helpers import is_path_should_be_skipped
-from hooks.validate_django_model_field_names import AssignOrAnnAssign
 
 AnyFuncdef = Union[ast.FunctionDef, ast.AsyncFunctionDef]
 
