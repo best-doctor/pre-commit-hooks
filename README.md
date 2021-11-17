@@ -61,6 +61,29 @@ Validates API schema annotations:
 
 All nullable fields in django models have to be commented with `# null_by_design` and/or `# null_for_compatibility`
 
+### `validate_django_deprecated_model_field_comments`
+
+All deprecated fields in django models have to be commented with `# deprecated <ticket_id> <deprecation_date>`
+
+Configuration options:
+
+- `--deprecation-comment-marker-regex` - A regex to match deprecation comment. Indicates thad field was deprecated (without checking whether the deprecation comment is valid or not).
+- `--valid-deprecation-comment-regex` - A regex to validate deprecation comment.
+
+<details>
+  <summary>Example</summary>
+
+  In `.pre-commit-config.yaml`
+  ```yaml
+  repos:
+    - repo: https://github.com/best-doctor/pre-commit-hooks
+      rev: v1.0.0
+      hooks:
+        - id: validate_deprecated_model_field_comments
+          args: [--deprecation-comment-marker-regex=deprecated, --valid-deprecation-comment-regex="#? deprecated (?P<ticket_id>[A-Z][A-Z,0-9]+-[0-9]+)"]
+  ```
+</details>
+
 ### `validate_django_model_field_names`
 
 Validates django models' field names against BestDoctor guidelines.
