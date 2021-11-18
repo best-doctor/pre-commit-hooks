@@ -67,8 +67,8 @@ All deprecated fields in django models have to be commented with `# deprecated <
 
 Configuration options:
 
-- `--deprecation-comment-marker-regex` - A regex to match deprecation comment. Indicates thad field was deprecated (without checking whether the deprecation comment is valid or not).
-- `--valid-deprecation-comment-regex` - A regex to validate deprecation comment.
+- `--deprecation-comment-marker-regex` - A regex to match deprecation comment. Indicates thad field was deprecated (without checking whether the deprecation comment is valid or not). Defaults to `deprecated`
+- `--valid-deprecation-comment-regex` - A regex to validate deprecation comment. Defaults to `#? deprecated (?P<ticket_id>[A-Z][A-Z,0-9]+-[0-9]+) (?P<deprecation_date>\d{2}\.\d{2}\.\d{4})`
 
 <details>
   <summary>Example</summary>
