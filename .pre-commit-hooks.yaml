@@ -18,6 +18,11 @@
   entry: validate_django_null_true_comments
   language: python
 
+- id: django-deprecated-model-field-comments
+  name: Check if all deprecated fields have valid deprecation comments
+  entry: validate_django_deprecated_model_field_comments
+  language: python
+
 - id: django-model-field-names
   name: Check Django model field names
   entry: validate_django_model_field_names
