@@ -13,8 +13,8 @@ def test_null_comments_valid_file() -> None:
         )
         has_first_name = NullBooleanField('Есть имя')  # null_for_compatibility
         first_name = PersonNameField('Имя', null=True)  # null_by_design
-        has_middle_name = models.NullBooleanField('Есть отчество')  # null_for_compatibility
-        middle_name = models.CharField('Отчество')
+        has_middle_name = models.NullBooleanField('Есть отчество')  # deprecated, null_for_compatibility
+        middle_name = models.CharField('Отчество')  # deprecated, null_by_design
     ''')
 
     assert validate_null_comments(module) == []
