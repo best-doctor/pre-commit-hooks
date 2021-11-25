@@ -10,12 +10,17 @@ from libcst.metadata import MetadataWrapper, PositionProvider
 
 from hooks.utils.pre_commit import get_input_files
 
-VALID_COMMENTS_FOR_NULL_TRUE = {'# null_by_design', '# null_for_compatibility'}
+VALID_COMMENTS_FOR_NULL_TRUE = {'null_by_design', 'null_for_compatibility'}
 
 Error = namedtuple('Error', 'line, col, field')
 
+
+def is_valid_comment(comment_text: str) -> bool:
+    return any(item in comment_text for item in VALID_COMMENTS_FOR_NULL_TRUE)
+
+
 null_comment = m.TrailingWhitespace(
-    comment=m.Comment(m.MatchIfTrue(lambda n: n in VALID_COMMENTS_FOR_NULL_TRUE)),
+    comment=m.Comment(m.MatchIfTrue(is_valid_comment)),
     newline=m.Newline(),
 )
 
@@ -48,9 +53,11 @@ field_without_comment = m.SimpleStatementLine(
 
 
 class FieldValidator(m.MatcherDecoratableVisitor):
-    errors: List[Error] = []
-
     METADATA_DEPENDENCIES = (PositionProvider,)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.errors: List[Error] = []
 
     @m.call_if_inside(m.ClassDef())
     def visit_SimpleStatementLine(self, node: SimpleStatementLine) -> None:
