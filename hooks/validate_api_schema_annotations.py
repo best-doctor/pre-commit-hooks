@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import sys
 import typing
 
 from hooks.utils.ast_helpers import (
@@ -137,6 +138,8 @@ def check_help_text_attribute_in_serializer_fields(node: ast.ClassDef, file_path
 
 def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
     for assign in get_classdef_assignments(node):
+        if isinstance(assign, ast.AnnAssign):
+            return attribute == assign.target.id  # type: ignore
         assign_targets_names = [target.id for target in assign.targets]  # type: ignore
 
         if attribute in assign_targets_names:
@@ -160,12 +163,12 @@ def check_schema_tags_presence_in_views_and_viewsets(node: ast.ClassDef, file_pa
 
 def check_viewset_has_serializer_class_map(node: ast.ClassDef, *args: typing.Any) -> Errors:
     """Проверяет, что у ViewSet определен serializer_class_map."""
-    serializer_class_map_attirbute = 'serializer_class_map'
+    serializer_class_map_attribute = 'serializer_class_map'
 
     if _is_api_viewset(node) is False:
         return []
 
-    if _check_classdef_hasattr(node, serializer_class_map_attirbute):
+    if _check_classdef_hasattr(node, serializer_class_map_attribute):
         return []
 
     return [f':{node.lineno} {node.name} missed `serializer_class_map` attribute']
@@ -212,6 +215,9 @@ def _is_allowed_return_type(return_node: typing.Union[ast.Name, ast.Subscript]) 
         return return_node.id in allowed_return_types
 
     if isinstance(return_node, ast.Subscript):
+        if sys.version_info >= (3, 9):
+            return return_node.slice.id in allowed_return_types
+
         return return_node.slice.value.id in allowed_return_types  # type: ignore
 
     return False

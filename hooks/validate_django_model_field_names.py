@@ -3,13 +3,11 @@ from __future__ import annotations
 import ast
 import re
 import sys
-from typing import Iterable, Iterator, List, NamedTuple, Optional, Union
+from typing import Iterable, Iterator, List, NamedTuple, Optional
 
 from hooks.utils.ast_helpers import get_ast_tree
+from hooks.utils.common_types import AssignOrAnnAssign
 from hooks.utils.pre_commit import get_input_files
-
-AssignOrAnnAssign = Union[ast.Assign, ast.AnnAssign]
-
 
 BOOLEAN_VERBS = (
     'is',

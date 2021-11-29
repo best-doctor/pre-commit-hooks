@@ -2,8 +2,6 @@
   name: Check functions complexity
   entry: validate_ajustable_complexity
   language: python
-  additional_dependencies:
-    - mccabe
 
 - id: expr-complexity
   name: Check expressions complexity
@@ -19,8 +17,11 @@
   name: Check if all nullable fields are annotated
   entry: validate_django_null_true_comments
   language: python
-  additional_dependencies:
-    - redbaron
+
+- id: django-deprecated-model-field-comments
+  name: Check if all deprecated fields have valid deprecation comments
+  entry: validate_django_deprecated_model_field_comments
+  language: python
 
 - id: django-model-field-names
   name: Check Django model field names
@@ -41,7 +42,6 @@
   name: Check api schema annotations
   entry: validate_api_schema_annotations
   language: python
-  language_version: "3.8"
 
 - id: old-style-annotations
   name: Check old-style annotations

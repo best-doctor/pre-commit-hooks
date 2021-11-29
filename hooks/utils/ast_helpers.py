@@ -5,6 +5,7 @@ import itertools
 import os
 from typing import Any, Callable, Iterable, Iterator, List, Optional, Set, Tuple, Type, Union
 
+from hooks.utils.common_types import AssignOrAnnAssign
 from hooks.utils.list_utils import flat
 from hooks.utils.mypy_api_helpers import is_path_should_be_skipped
 
@@ -57,13 +58,15 @@ def get_ast_tree(pyfilepath: str) -> Optional[ast.Module]:
     return get_ast_tree_with_content(pyfilepath)[0]
 
 
-def get_classdef_assignments(node: ast.ClassDef) -> Iterable[ast.Assign]:
+def get_classdef_assignments(node: ast.ClassDef) -> Iterable[AssignOrAnnAssign]:
     for node_element in node.body:
-        if isinstance(node_element, ast.Assign):
+        if isinstance(node_element, (ast.Assign, ast.AnnAssign)):
             yield node_element
 
 
-def get_assign_name(node: ast.Assign) -> str:
+def get_assign_name(node: AssignOrAnnAssign) -> str:
+    if isinstance(node, ast.AnnAssign):
+        return node.target.id  # type: ignore
     if node.targets[0]:
         return node.targets[0].id  # type: ignore
 
@@ -109,10 +112,19 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
 
 
 def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
-    nodes_with_subnodes = (ast.FunctionDef, ast.If, ast.For, ast.Module, ast.ClassDef, ast.Try, ast.With, ast.While)
+    nodes_with_subnodes = (
+        ast.AsyncFunctionDef, ast.FunctionDef,
+        ast.If,
+        ast.AsyncFor, ast.For,
+        ast.Module,
+        ast.ClassDef,
+        ast.Try,
+        ast.AsyncWith, ast.With,
+        ast.While,
+    )
     if isinstance(node, (ast.If, ast.While)):
         yield node.test
-    elif isinstance(node, ast.For):
+    elif isinstance(node, (ast.AsyncFor, ast.For)):
         yield node.iter
     nodes_to_iter = node.body  # type: ignore
     if isinstance(node, ast.Try):

@@ -37,6 +37,7 @@ NODE_TYPES_BY_CLASS = [
         (
             ast.Expr, ast.Return, ast.Starred, ast.Index,
             ast.Yield, ast.YieldFrom, ast.FormattedValue,
+            ast.Await,
         ),
         'item_with_value',
     ),
@@ -54,6 +55,7 @@ NODE_TYPES_BY_CLASS = [
         ),
         'simple_type',
     ),
+    (ast.NamedExpr, 'walrus'),
     (ast.Subscript, 'subscript'),
     (ast.Slice, 'slice'),
     (ast.UnaryOp, 'unary_op'),
@@ -84,6 +86,7 @@ NODE_COMPLEXITY_BY_TYPE = {
     'subscript': 1,
     'slice': 1,
     'unary_op': 1,
+    'walrus': 1,
 }
 
 
@@ -112,6 +115,7 @@ NODE_TYPE_SUBNODE_GETTERS = {
     'subscript': lambda node: [node.value, node.slice],
     'slice': lambda node: [node.lower, node.upper, node.step],
     'unary_op': lambda node: [node.operand],
+    'walrus': lambda node: [node.target, node.value],
 }
 
 
