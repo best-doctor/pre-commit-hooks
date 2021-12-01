@@ -237,7 +237,10 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
         if isinstance(assign_value, ast.Call) is False:
             continue
 
-        if assign_value.func.id != 'SerializerMethodField':  # type: ignore
+        if (
+            getattr(assign_value.func, 'id', None) != 'SerializerMethodField'  # type: ignore
+            and getattr(assign_value.func, 'attr', None) != 'SerializerMethodField'  # type: ignore
+        ):
             continue
 
         assign_field_name = get_assign_name(assign)
