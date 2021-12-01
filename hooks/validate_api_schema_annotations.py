@@ -139,7 +139,9 @@ def check_help_text_attribute_in_serializer_fields(node: ast.ClassDef, file_path
 def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
     for assign in get_classdef_assignments(node):
         if isinstance(assign, ast.AnnAssign):
-            return attribute == assign.target.id  # type: ignore
+            if attribute == assign.target.id:  # type: ignore
+                return True
+            continue
         assign_targets_names = [target.id for target in assign.targets]  # type: ignore
 
         if attribute in assign_targets_names:

@@ -143,6 +143,55 @@ def test_check_docstring_success_case(definition, expected_errors):
         (
             (
                 """class Test(GenericViewSet):
+                    some_field = 'some_value'
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags: list[str]
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
                     pass
                 """
             ),
@@ -275,9 +324,27 @@ def test_help_text_attribute_in_serializer_fields(
     ),
     (
         """class Test(GenericViewSet):
-                some_field = 'some_value'
-                serializer_class_map: SerializerClassMap = ...
-            """, [],
+            some_field = 'some_value'
+            serializer_class_map: SerializerClassMap = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str = 'some_value'
+            serializer_class_map: SerializerClassMap = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str = 'some_value'
+            serializer_class_map = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str
+            serializer_class_map: SerializerClassMap
+        """, [],
     ),
     (
         """class Test(ListAPIView):
