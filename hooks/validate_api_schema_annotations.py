@@ -139,7 +139,9 @@ def check_help_text_attribute_in_serializer_fields(node: ast.ClassDef, file_path
 def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
     for assign in get_classdef_assignments(node):
         if isinstance(assign, ast.AnnAssign):
-            return attribute == assign.target.id  # type: ignore
+            if attribute == assign.target.id:  # type: ignore
+                return True
+            continue
         assign_targets_names = [target.id for target in assign.targets]  # type: ignore
 
         if attribute in assign_targets_names:
@@ -235,7 +237,10 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
         if isinstance(assign_value, ast.Call) is False:
             continue
 
-        if assign_value.func.id != 'SerializerMethodField':  # type: ignore
+        if (
+            getattr(assign_value.func, 'id', None) != 'SerializerMethodField'  # type: ignore
+            and getattr(assign_value.func, 'attr', None) != 'SerializerMethodField'  # type: ignore
+        ):
             continue
 
         assign_field_name = get_assign_name(assign)

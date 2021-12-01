@@ -143,6 +143,55 @@ def test_check_docstring_success_case(definition, expected_errors):
         (
             (
                 """class Test(GenericViewSet):
+                    some_field = 'some_value'
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags: list[str] = ['test']
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
+                    some_field: str = 'some_value'
+                    schema_tags: list[str]
+                """
+            ),
+            'viewsets_file_path',
+            [],
+        ),
+        (
+            (
+                """class Test(GenericViewSet):
                     pass
                 """
             ),
@@ -275,9 +324,27 @@ def test_help_text_attribute_in_serializer_fields(
     ),
     (
         """class Test(GenericViewSet):
-                some_field = 'some_value'
-                serializer_class_map: SerializerClassMap = ...
-            """, [],
+            some_field = 'some_value'
+            serializer_class_map: SerializerClassMap = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str = 'some_value'
+            serializer_class_map: SerializerClassMap = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str = 'some_value'
+            serializer_class_map = ...
+        """, [],
+    ),
+    (
+        """class Test(GenericViewSet):
+            some_field: str
+            serializer_class_map: SerializerClassMap
+        """, [],
     ),
     (
         """class Test(ListAPIView):
@@ -340,6 +407,28 @@ def test_check_viewset_lookup_field_has_valid_value(definition, expected_errors)
             ],
         ),
         (
+            """class Test(ModelSerializer):
+                visit = serializers.SerializerMethodField()
+                patient = serializers.SerializerMethodField()
+                urls = serializers.SerializerMethodField()
+
+                def get_urls(self) -> typing.List:
+                    pass
+
+                def get_visit(self) -> Visit:
+                    pass
+
+                def get_patient(self) -> Patient:
+                    pass
+            """,
+            'serializers_file_path',
+            [
+                ':2 Test serializer visit field missing SchemaWrapper',
+                ':3 Test serializer patient field missing SchemaWrapper',
+                ':4 Test serializer urls field missing SchemaWrapper',
+            ],
+        ),
+        (
             """class Test(ModelViewSet):
                 pass
             """,
@@ -350,6 +439,20 @@ def test_check_viewset_lookup_field_has_valid_value(definition, expected_errors)
             """class Test(ModelSerializer):
                 visit = SerializerMethodField()
                 patient = SerializerMethodField()
+
+                def get_visit(self) -> str:
+                    pass
+
+                def get_patient(self) -> Optional[str]:
+                    pass
+            """,
+            'serializers_file_path',
+            [],
+        ),
+        (
+            """class Test(ModelSerializer):
+                visit = serializers.SerializerMethodField()
+                patient = serializers.SerializerMethodField()
 
                 def get_visit(self) -> str:
                     pass
