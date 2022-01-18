@@ -68,6 +68,12 @@
   entry: validate_settings_variables
   language: python
 
+- id: celery-tasks-return-types
+  name: Check celery tasks return types
+  description: "Check return type for app.task decorated functions"
+  entry: validate_celery_tasks_return_types
+  language: python
+
 - id: check-gitleaks
   name: Check gitleaks secrets
   description: Runs `gitleaks`, requires https://github.com/zricethezav/gitleaks
