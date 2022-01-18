@@ -2,9 +2,9 @@
 
 autopep8==1.6.0
 flake8==4.0.1
-mypy==0.812
-pep8-naming==0.11.1
-pre-commit==2.9.2
+mypy==0.931
+pep8-naming==0.12.1
+pre-commit==2.16.0
 pytest==6.1.2
 pytest-mock==3.1.0
-rozental-as-a-service==1.1.2
+rozental-as-a-service==1.2.2
