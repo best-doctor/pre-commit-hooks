@@ -13,6 +13,7 @@ from hooks.validate_api_schema_annotations import (
     check_schema_wrapper_for_serializer_method_field,
     check_viewset_has_serializer_class_map,
     check_viewset_lookup_field_has_valid_value,
+    get_serializer_field_method,
     is_serializer,
     is_view,
     is_viewset,
@@ -37,6 +38,35 @@ def viewsets_file_path():
 @pytest.fixture()
 def views_file_path():
     return 'some_app/api/views.py'
+
+
+def test__get_serializer_field_method__returns_matching_getter():
+    node = get_class_def_node_body_from_string_definition(
+        """class TestSerializer(ModelSerializer):
+            visit = SerializerMethodField()
+
+            def get_visit(self) -> str:
+                pass
+
+            def get_other(self) -> int:
+                pass
+        """,
+    )
+
+    method = get_serializer_field_method(node, 'visit')
+
+    assert method is not None
+    assert method.name == 'get_visit'
+
+
+def test__get_serializer_field_method__returns_none_when_getter_missing():
+    node = get_class_def_node_body_from_string_definition(
+        """class TestSerializer(ModelSerializer):
+            visit = SerializerMethodField()
+        """,
+    )
+
+    assert get_serializer_field_method(node, 'visit') is None
 
 
 @pytest.mark.parametrize(

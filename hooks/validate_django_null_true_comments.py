@@ -72,7 +72,7 @@ class FieldValidator(m.MatcherDecoratableVisitor):
 
 
 def get_input_models_files(
-    args: List[str] = None, dirs_to_exclude: List[str] = None
+    args: list[str] | None = None, dirs_to_exclude: list[str] | None = None,
 ) -> Iterator[str]:
     return (
         filepath

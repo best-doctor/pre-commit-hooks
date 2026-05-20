@@ -5,7 +5,14 @@ import io
 import itertools
 from typing import Any, Dict, Iterator, List
 
-from hooks.utils.ast_helpers import get_ast_tree_with_content, is_django_orm_query, iterate_over_expressions
+from hooks.utils.ast_helpers import (
+    get_ast_node_col_offset,
+    get_ast_node_end_col_offset,
+    get_ast_node_lineno,
+    get_ast_tree_with_content,
+    is_django_orm_query,
+    iterate_over_expressions,
+)
 from hooks.utils.pre_commit import get_input_files
 
 # Build the simple_type tuple based on Python version
@@ -164,14 +171,17 @@ def get_expression_complexity(node: ast.AST) -> float:
 
 def format_exception(exception: BaseAstNodeError, filepath: str, file_lines: List[str]) -> str:
     node = exception.node
-    line = file_lines[node.lineno-1]
+    lineno = get_ast_node_lineno(node)
+    col_offset = get_ast_node_col_offset(node)
+    end_col_offset = get_ast_node_end_col_offset(node)
+    line = file_lines[lineno - 1]
     error_message = io.StringIO()
-    error_message.write(f'{exception} in {filepath}:{node.lineno}\n')
+    error_message.write(f'{exception} in {filepath}:{lineno}\n')
     error_message.write(line)
     error_message.write('\n')
-    error_message.write(' ' * node.col_offset)
+    error_message.write(' ' * col_offset)
     error_message.write(
-        '^' * ((node.end_col_offset or len(line)) - node.col_offset))
+        '^' * ((end_col_offset or len(line)) - col_offset))
     return error_message.getvalue()
 
 
@@ -197,10 +207,10 @@ def get_file_errors(
         else:
             if (
                 complexity > max_expression_complexity
-                and '# noqa' not in file_lines[expression.lineno - 1]
+                and '# noqa' not in file_lines[get_ast_node_lineno(expression) - 1]
             ):
                 yield '{0}:{1} expression is too complex ({2}>{3})'.format(
-                    pyfilepath, expression.lineno,
+                    pyfilepath, get_ast_node_lineno(expression),
                     complexity, max_expression_complexity,
                 )
 

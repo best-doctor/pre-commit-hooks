@@ -147,7 +147,8 @@ class DeprecatedModelFieldValidator(m.MatcherDecoratableVisitor):
 
 
 def get_input_models_files(
-    args: typing.List[str] = None, dirs_to_exclude: typing.List[str] = None
+    args: list[str] | None = None,
+    dirs_to_exclude: list[str] | None = None,
 ) -> typing.Iterator[str]:
     return (
         filepath

@@ -3,7 +3,12 @@ from __future__ import annotations
 import ast
 from typing import List, Optional, Tuple
 
-from hooks.utils.ast_helpers import extract_all_variable_names, get_all_funcdefs, get_ast_tree_with_content
+from hooks.utils.ast_helpers import (
+    extract_all_variable_names,
+    get_all_funcdefs,
+    get_ast_node_lineno,
+    get_ast_tree_with_content,
+)
 from hooks.utils.complexity import get_node_mccabe_complexity
 from hooks.utils.mypy_api_helpers import get_list_param_from_configs, get_param_from_configs
 from hooks.utils.pre_commit import get_input_files
@@ -74,7 +79,7 @@ def main() -> Optional[int]:
         for funcdef in funcdefs:
             vars_in_function = [
                 v for v in extract_all_variable_names(funcdef)
-                if '# noqa' not in file_lines[v[1].lineno - 1]
+                if '# noqa' not in file_lines[get_ast_node_lineno(v[1]) - 1]
             ]
             all_vars_in_function = {v[0] for v in vars_in_function}
             blacklisted_vars_amount = (

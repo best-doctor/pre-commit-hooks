@@ -6,11 +6,25 @@ import pytest
 
 from hooks.utils.ast_helpers import (
     _is_classdef_has_base_classes,
+    get_assign_name,
     get_full_imported_name,
     get_var_names_from_assignment,
     get_var_names_from_funcdef,
     is_django_orm_query,
 )
+
+
+@pytest.mark.parametrize(
+    'assignment, expected_name',
+    [
+        ('a = 1', 'a'),
+        ('a: int = 1', 'a'),
+    ],
+)
+def test__get_assign_name__returns_variable_name(assignment, expected_name):
+    assign_node = ast.parse(assignment).body[0]
+
+    assert get_assign_name(assign_node) == expected_name
 
 
 @pytest.mark.parametrize(

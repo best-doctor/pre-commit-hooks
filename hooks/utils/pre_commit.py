@@ -3,13 +3,17 @@ from __future__ import annotations
 import os
 import sys
 from collections import defaultdict
-from typing import DefaultDict, Iterable, Iterator, List, Tuple
+from typing import Any, DefaultDict, Iterable, Iterator, List, Tuple
 
 from hooks.utils.ast_helpers import iterate_files_in
 from hooks.utils.mypy_api_helpers import get_exclude_dirs_from_config, is_path_should_be_skipped
 
 
-def get_input_files(args: List[str] = None, dirs_to_exclude: List[str] = None, extension: str = None) -> Iterator[str]:
+def get_input_files(
+    args: list[str] | None = None,
+    dirs_to_exclude: list[str] | None = None,
+    extension: str | None = None,
+) -> Iterator[str]:
     if args is None:
         args = sys.argv[1:] if len(sys.argv) > 1 else ['.']
 
@@ -33,7 +37,7 @@ def get_input_files(args: List[str] = None, dirs_to_exclude: List[str] = None, e
             yield from iterate_files_in(path, dirs_to_exclude, extension)
 
 
-def get_input_test_files(args: List[str] = None) -> Iterator[str]:
+def get_input_test_files(args: list[str] | None = None) -> Iterator[str]:
     return (
         filepath for filepath in get_input_files(args)
         if (
@@ -48,8 +52,8 @@ def get_input_test_files(args: List[str] = None) -> Iterator[str]:
 
 def get_modules_files(
     input_files: Iterable[str],
-    base_dir: str = None,
-    only_modules: List = None,
+    base_dir: str | None = None,
+    only_modules: list[Any] | None = None,
 ) -> List[Tuple[str, str, List[str]]]:
     """Группирует список файлов по их корневым модулям."""
 

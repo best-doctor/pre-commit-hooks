@@ -58,7 +58,8 @@ def test__get_param_from_config__parses_setup_cfg_sections(
     setup_cfg_path = tmp_path / 'setup.cfg'
     setup_cfg_path.write_text(setup_cfg_content, encoding='utf-8')
 
-    assert get_param_from_config(str(setup_cfg_path), section_name, param_name) == expected_value
+    assert get_param_from_config(
+        str(setup_cfg_path), section_name, param_name) == expected_value
 
 
 def test__get_list_param_from_config__parses_multiline_setup_cfg(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -115,7 +116,8 @@ def test__get_param_from_configs__parses_pyproject_toml(
 ) -> None:
     """Arrange: pyproject.toml with tool section. Act: read param. Assert: normalized scalar value."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath('pyproject.toml').write_text(pyproject_content, encoding='utf-8')
+    tmp_path.joinpath('pyproject.toml').write_text(
+        pyproject_content, encoding='utf-8')
 
     assert get_param_from_configs(section_name, param_name) == expected_value
 
@@ -150,7 +152,8 @@ def test__get_list_param_from_configs__parses_multiline_pyproject_string(
         encoding='utf-8',
     )
 
-    assert get_list_param_from_configs('project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
+    assert get_list_param_from_configs(
+        'project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
 
 
 def test__load_pyproject_toml__parses_nested_tool_sections(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -199,7 +202,8 @@ def test__get_list_param_from_configs__falls_back_to_setup_cfg_multiline(
         encoding='utf-8',
     )
 
-    assert get_list_param_from_configs('project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
+    assert get_list_param_from_configs(
+        'project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
 
 
 @pytest.mark.parametrize(
@@ -228,7 +232,8 @@ def test__get_exclude_dirs_from_config__parses_exclude_from_both_formats(
 ) -> None:
     """Arrange: exclude in setup.cfg or pyproject. Act: read exclude dirs. Assert: comma/list normalized."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath(config_source).write_text(config_content, encoding='utf-8')
+    tmp_path.joinpath(config_source).write_text(
+        config_content, encoding='utf-8')
 
     assert get_exclude_dirs_from_config('flake8', 'exclude') == expected_dirs
 
@@ -237,7 +242,8 @@ def test__get_param_from_configs__returns_none_when_missing(tmp_path, monkeypatc
     """Arrange: empty directory without config files. Act: read unknown param. Assert: None."""
     monkeypatch.chdir(tmp_path)
 
-    assert get_param_from_configs('flake8', 'adjustable-default-max-complexity') is None
+    assert get_param_from_configs(
+        'flake8', 'adjustable-default-max-complexity') is None
 
 
 def test__get_list_param_from_configs__returns_empty_list_when_missing(
@@ -246,6 +252,8 @@ def test__get_list_param_from_configs__returns_empty_list_when_missing(
 ) -> None:
     """Arrange: setup.cfg without list param. Act: read list param. Assert: empty list."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath('setup.cfg').write_text('[flake8]\nmax-line-length = 120\n', encoding='utf-8')
+    tmp_path.joinpath('setup.cfg').write_text(
+        '[flake8]\nmax-line-length = 120\n', encoding='utf-8')
 
-    assert get_list_param_from_configs('flake8', 'per-path-max-complexity') == []
+    assert get_list_param_from_configs(
+        'flake8', 'per-path-max-complexity') == []

@@ -7,7 +7,7 @@ import tokenize
 import typing
 from collections import deque
 
-from hooks.utils.ast_helpers import get_ast_tree_with_content
+from hooks.utils.ast_helpers import get_ast_node_lineno, get_ast_tree_with_content
 from hooks.utils.pre_commit import get_input_files
 
 NOQA_FOR_SETTINGS_VARIABLES = [
@@ -194,15 +194,15 @@ def find_line_errors(
 ) -> typing.Iterator[LineError]:
     bad_node = find_node_with_getenv_call(node, parent, child_idx)
     if bad_node:
-        yield LineError(bad_node.lineno, Reasons.GETENV)
+        yield LineError(get_ast_node_lineno(bad_node), Reasons.GETENV)
     if isinstance(node, (ast.Call)):
         return
 
     if is_node_static(node):
-        yield LineError(node.lineno, Reasons.STATIC_OBJECT)
+        yield LineError(get_ast_node_lineno(node), Reasons.STATIC_OBJECT)
 
     if is_node_straight_assignment(node, parent, child_idx):
-        yield LineError(node.lineno, Reasons.STRAIGHT_ASSIGNMENT)
+        yield LineError(get_ast_node_lineno(node), Reasons.STRAIGHT_ASSIGNMENT)
     elif not is_node_static(node):
         for child_idx, child_node in enumerate(ast.iter_child_nodes(node)):
             yield from find_line_errors(

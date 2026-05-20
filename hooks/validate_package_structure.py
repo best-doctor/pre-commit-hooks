@@ -25,6 +25,7 @@ from typing import Callable, List, Optional
 
 from hooks.utils.ast_helpers import (
     get_assignments_to,
+    get_ast_node_lineno,
     get_ast_tree,
     get_check_decorators_includes,
     get_not_ok_base_nodes_from,
@@ -75,7 +76,7 @@ def has_only_models_in_models_submodule(module_name: str, module_path: str, modu
 
         for bad_node in get_not_ok_base_nodes_from(ast_tree, allowed_ast_nodes, conditionals_ast_nodes):
             errors.append(
-                f'{filepath}:{bad_node.lineno} Wrong instruction for models '
+                f'{filepath}:{get_ast_node_lineno(bad_node)} Wrong instruction for models '
                 f'submodule (models should contains only models)',
             )
     return errors
@@ -112,7 +113,7 @@ def has_no_submodules_with_blacklisted_suffixes(
             errors.append(
                 f'{filepath} should be moved to utils subdirectory and remove suffix from filename')
 
-        return errors
+    return errors
 
 
 def has_no_empty_py_files(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
@@ -161,7 +162,7 @@ def views_py_has_only_class_views(module_name: str, module_path: str, module_fil
             ast_tree, allowed_ast_nodes, conditionals_ast_nodes)
 
         errors.extend([
-            f'{filepath}:{func.lineno} Only class views allowed in {views_py_filename}'
+            f'{filepath}:{get_ast_node_lineno(func)} Only class views allowed in {views_py_filename}'
             for func in functions
         ])
 

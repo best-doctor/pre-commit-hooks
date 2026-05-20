@@ -14,6 +14,7 @@ def is_import_in_list(imported_name: str, forbidden_imports: List[str]) -> bool:
     for forbidden_import in forbidden_imports:
         if forbidden_import.startswith(f'{imported_name}.'):
             return True
+    return False
 
 
 def get_import_errors_in_ast_tree(pyfilepath: str, ast_tree: ast.AST, forbidden_imports: List[str]) -> List[str]:

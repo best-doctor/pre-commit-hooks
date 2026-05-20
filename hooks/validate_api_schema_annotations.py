@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import sys
 import typing
 
 from hooks.utils.ast_helpers import (
@@ -139,11 +138,12 @@ def check_help_text_attribute_in_serializer_fields(node: ast.ClassDef, file_path
 def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
     for assign in get_classdef_assignments(node):
         if isinstance(assign, ast.AnnAssign):
-            if attribute == assign.target.id:  # type: ignore
+            if isinstance(assign.target, ast.Name) and attribute == assign.target.id:
                 return True
             continue
         assign_targets_names = [
-            target.id for target in assign.targets]  # type: ignore
+            target.id for target in assign.targets if isinstance(target, ast.Name)
+        ]
 
         if attribute in assign_targets_names:
             return True
@@ -187,10 +187,9 @@ def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, *args: typing
         if get_assign_name(assign) != 'lookup_field':
             continue
 
-        if isinstance(assign.value, ast.Constant) is False:
+        if not isinstance(assign.value, ast.Constant):
             continue
-
-        assign_value = assign.value.value  # type: ignore
+        assign_value = assign.value.value
         if assign_value not in allowed_lookup_fields:
             error = (
                 f':{node.lineno} {node.name} viewset has forbidden `lookup_field`. '
@@ -201,27 +200,24 @@ def check_viewset_lookup_field_has_valid_value(node: ast.ClassDef, *args: typing
     return []
 
 
-def get_serializer_field_method(node: ast.ClassDef, field_name: str) -> ast.FunctionDef:
-    function_defs = [
-        body_node for body_node in node.body if isinstance(body_node, ast.FunctionDef) is True
-    ]
+def get_serializer_field_method(
+    node: ast.ClassDef, field_name: str,
+) -> ast.FunctionDef | None:
+    for body_node in node.body:
+        if isinstance(body_node, ast.FunctionDef) and body_node.name == f'get_{field_name}':
+            return body_node
 
-    for function_def in function_defs:
-        if function_def.name == f'get_{field_name}':  # type: ignore
-            return typing.cast(ast.FunctionDef, function_def)
+    return None
 
 
-def _is_allowed_return_type(return_node: typing.Union[ast.Name, ast.Subscript]) -> bool:
+def _is_allowed_return_type(return_node: ast.expr | None) -> bool:
     allowed_return_types = ['str']
 
     if isinstance(return_node, ast.Name):
         return return_node.id in allowed_return_types
 
-    if isinstance(return_node, ast.Subscript):
-        if sys.version_info >= (3, 9):
-            return return_node.slice.id in allowed_return_types
-
-        return return_node.slice.value.id in allowed_return_types  # type: ignore
+    if isinstance(return_node, ast.Subscript) and isinstance(return_node.slice, ast.Name):
+        return return_node.slice.id in allowed_return_types
 
     return False
 
@@ -235,15 +231,18 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
 
     for assign in get_classdef_assignments(node):
         assign_value = assign.value
-        if isinstance(assign_value, ast.Call) is False:
+        if not isinstance(assign_value, ast.Call):
             continue
 
-        if (
-            getattr(assign_value.func, 'id',
-                    None) != 'SerializerMethodField'  # type: ignore
-            # type: ignore
-            and getattr(assign_value.func, 'attr', None) != 'SerializerMethodField'
-        ):
+        assign_call_func = assign_value.func
+        is_serializer_method_field = (
+            isinstance(assign_call_func, ast.Name)
+            and assign_call_func.id == 'SerializerMethodField'
+        ) or (
+            isinstance(assign_call_func, ast.Attribute)
+            and assign_call_func.attr == 'SerializerMethodField'
+        )
+        if not is_serializer_method_field:
             continue
 
         assign_field_name = get_assign_name(assign)
@@ -253,7 +252,7 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
             continue
 
         return_node = serializer_field_method.returns
-        if _is_allowed_return_type(return_node) is False:  # type: ignore
+        if _is_allowed_return_type(return_node) is False:
             errors.append(
                 f':{assign.lineno} {node.name} serializer {assign_field_name} field missing SchemaWrapper')
 

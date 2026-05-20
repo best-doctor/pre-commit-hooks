@@ -12,6 +12,24 @@ from hooks.utils.mypy_api_helpers import is_path_should_be_skipped
 AnyFuncdef = Union[ast.FunctionDef, ast.AsyncFunctionDef]
 
 
+def get_ast_node_lineno(node: ast.AST) -> int:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.lineno
+    raise TypeError(f'AST node {type(node)!r} has no lineno')
+
+
+def get_ast_node_col_offset(node: ast.AST) -> int:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.col_offset
+    raise TypeError(f'AST node {type(node)!r} has no col_offset')
+
+
+def get_ast_node_end_col_offset(node: ast.AST) -> int | None:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.end_col_offset
+    return None
+
+
 def get_classdef_methods(node: ast.ClassDef) -> Iterable[ast.FunctionDef]:
     for body_node in node.body:
         if isinstance(body_node, ast.FunctionDef):
@@ -66,9 +84,12 @@ def get_classdef_assignments(node: ast.ClassDef) -> Iterable[AssignOrAnnAssign]:
 
 def get_assign_name(node: AssignOrAnnAssign) -> str:
     if isinstance(node, ast.AnnAssign):
-        return node.target.id  # type: ignore
-    if node.targets[0]:
-        return node.targets[0].id  # type: ignore
+        if isinstance(node.target, ast.Name):
+            return node.target.id
+        raise ValueError('AnnAssign target must be a Name')
+    if node.targets and isinstance(node.targets[0], ast.Name):
+        return node.targets[0].id
+    raise ValueError('Assign target must be a Name')
 
 
 def get_var_names_from_assignment(
