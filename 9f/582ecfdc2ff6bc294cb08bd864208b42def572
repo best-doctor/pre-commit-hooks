@@ -1,0 +1,82 @@
+requirements_dev.txt
+  s_d43b6205333d95::t_9c2b438e11975d 1-3,154-156,162-164,182-240,318,458-475,485-487,494-541
+  s_d43b6205333d95::t_8e023d78fd8ca7 6-153,157-159,165-181,241-317,319-457,476-478,482-484,488-493,542-550
+Makefile
+  s_d43b6205333d95::t_c08a44c832596a 16-17
+  h_4a2ab1943fed29 11
+  s_d43b6205333d95::t_a8e03e505ff2c7 8,12-15
+.github/workflows/build.yml
+  h_4a2ab1943fed29 19-22
+  s_d43b6205333d95::t_715775e9da0f2e 24,26
+  s_d43b6205333d95::t_1d5df8ec87e29b 29-30,32-35
+hooks/validate_ajustable_complexity.py
+  s_d43b6205333d95::t_223c5300b719ea 55,60-61
+  s_d43b6205333d95::t_0a6a1214e648d9 8
+.gitignore
+  s_d43b6205333d95::t_95b9f3e4174b40 48-49
+README.md
+  s_d43b6205333d95::t_ff8146577ffddc 187,190,193,195,204,206,211
+  s_d43b6205333d95::t_e1a09761391be0 23-29
+  s_d43b6205333d95::t_6144ee72074b14 126-128,130-139
+  s_d43b6205333d95::t_9aa587894da035 220,224-228
+  s_d43b6205333d95::t_4fabd0f0fa124d 44,46-60
+.pre-commit-config.yaml
+  s_9774b60c08b9fa::t_f7b10c2780e94c 24
+  h_4a2ab1943fed29 48
+  s_9774b60c08b9fa::t_3ef81b8c5eed5d 3,13,30,42
+  s_d43b6205333d95::t_de4dc35d8b7b28 34-35
+  s_d43b6205333d95::t_47b65cb7fa0cf5 38-39
+hooks/utils/tests/test_config_readers.py
+  s_d43b6205333d95::t_4fc10bdeabd124 1-6,9,11-21,125-126,129-131,136-137,143,161-163,165,168,175-187,193,199-202
+  s_d43b6205333d95::t_902ebc67e0785c 23,27-28,34-35,41-42,52-53
+  s_d43b6205333d95::t_9049fe51cd4377 7-8,10,22,24-26,29-33,36-40,43-51,54-124,127-128,132-135,138-142,144-160,164,166-167,169-174,188-192,194-198,203-251
+hooks/utils/mypy_api_helpers.py
+  s_d43b6205333d95::t_43861ad6a20579 83
+  s_d43b6205333d95::t_94af45871c799a 4-82,84-101,105,108-109,130-132,136
+requirements.txt
+  s_d43b6205333d95::t_e689d038371aae 66-122
+  s_d43b6205333d95::t_1424769dcd9cab 65
+  s_d43b6205333d95::t_9c2b438e11975d 1-3,123-140
+  s_d43b6205333d95::t_028b48b2ce6737 4-61
+  s_d43b6205333d95::t_00401fbde330a9 62-64
+hooks/utils/pre_commit.py
+  s_d43b6205333d95::t_8b9d7e23422fa1 20
+pyproject.toml
+  s_d43b6205333d95::t_d13c33cd3d92fc 72-73,75,77-87,89-91,93-95,97-99,101,104-108
+  s_d43b6205333d95::t_0edc1e1c2c0c64 1-2,4-12,14-25,27-28,30-45,47-50,52-58,60-62,64-71
+  h_4a2ab1943fed29 3
+  s_d43b6205333d95::t_ae553f642b6230 13
+  s_d43b6205333d95::t_837deabd2cb1d9 51
+hooks/validate_no_forbidden_imports.py
+  s_d43b6205333d95::t_63538a63b1316c 7
+  s_d43b6205333d95::t_02c6e1bc55a26b 32-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "9f582ecfdc2ff6bc294cb08bd864208b42def572",
+  "prompts": {},
+  "humans": {
+    "h_4a2ab1943fed29": {
+      "author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  },
+  "sessions": {
+    "s_9774b60c08b9fa": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "887af5b7-cbaf-46c0-9104-0039272daba9",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    },
+    "s_d43b6205333d95": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6112e422-e71b-495d-8f38-a0f333b46e78",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  }
+}
