@@ -1,0 +1,19 @@
+.pre-commit-config.yaml
+  s_c762af22484abf::t_c56c1b4c968d3c 29-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "f3eee4a5755812967ab203071998d24fdedfd166",
+  "prompts": {},
+  "sessions": {
+    "s_c762af22484abf": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "128dbd0a-acfa-4c98-baf7-f1510ef477eb",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  }
+}
