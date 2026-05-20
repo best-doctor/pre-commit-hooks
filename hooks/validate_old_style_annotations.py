@@ -15,9 +15,12 @@ def main() -> Optional[int]:
         if ast_tree is None or file_content is None:
             continue
         for annotated in itertools.chain(
-            [n.annotation for n in ast.walk(ast_tree) if isinstance(n, ast.AnnAssign)],
-            [n.annotation for n in ast.walk(ast_tree) if isinstance(n, ast.arg) and n.annotation],
-            [n.returns for n in ast.walk(ast_tree) if isinstance(n, ast.FunctionDef) and n.returns],
+            [n.annotation for n in ast.walk(
+                ast_tree) if isinstance(n, ast.AnnAssign)],
+            [n.annotation for n in ast.walk(ast_tree) if isinstance(
+                n, ast.arg) and n.annotation],
+            [n.returns for n in ast.walk(ast_tree) if isinstance(
+                n, ast.FunctionDef) and n.returns],
         ):
             if isinstance(annotated, ast.Str):
                 has_errors = True

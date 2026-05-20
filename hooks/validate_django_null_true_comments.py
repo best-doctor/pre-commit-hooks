@@ -35,15 +35,18 @@ field_without_comment = m.SimpleStatementLine(
                         m.Arg(keyword=m.Name('null'), value=m.Name('True')),
                         m.ZeroOrMore(),
                     ],
-                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(
+                        m.ParenthesizedWhitespace(null_comment)),
                 )
                 | m.Call(
                     func=m.Attribute(attr=m.Name('NullBooleanField')),
-                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(
+                        m.ParenthesizedWhitespace(null_comment)),
                 )
                 | m.Call(
                     func=m.Name('NullBooleanField'),
-                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(
+                        m.ParenthesizedWhitespace(null_comment)),
                 )
             )
         )
@@ -64,7 +67,8 @@ class FieldValidator(m.MatcherDecoratableVisitor):
         if self.matches(node, field_without_comment):
             position = self.get_metadata(PositionProvider, node).start
             field_name = cast(Assign, node.body[0]).targets[0].target.value
-            self.errors.append(Error(position.line, position.column, field_name))
+            self.errors.append(
+                Error(position.line, position.column, field_name))
 
 
 def get_input_models_files(

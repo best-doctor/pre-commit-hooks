@@ -85,6 +85,7 @@ def test_is_django_orm_query_success_case(import_str, imported_names):
 def test__is_classdef_has_base_classes_success_case(classdef_node, base_classess, module_name, classdef_check):
     classdef_node = ast.parse(classdef_node).body[0]
 
-    actual_result = _is_classdef_has_base_classes(classdef_node, base_classess, module_name)
+    actual_result = _is_classdef_has_base_classes(
+        classdef_node, base_classess, module_name)
 
     assert actual_result == classdef_check

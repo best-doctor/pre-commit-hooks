@@ -17,7 +17,7 @@ def get_input_files(args: List[str] = None, dirs_to_exclude: List[str] = None, e
         extension = 'py'
 
     if dirs_to_exclude is None:
-        dirs_to_exclude = get_exclude_dirs_from_config('setup.cfg', 'flake8', 'exclude')
+        dirs_to_exclude = get_exclude_dirs_from_config('flake8', 'exclude')
 
     for item in args:
         path = os.path.realpath(os.path.abspath(item))
@@ -58,7 +58,8 @@ def get_modules_files(
 
     processed_modules: DefaultDict[str, List[str]] = defaultdict(list)
     for filepath in input_files:
-        module_name = os.path.relpath(os.path.dirname(filepath), base_dir).split(os.sep)[0]
+        module_name = os.path.relpath(os.path.dirname(
+            filepath), base_dir).split(os.sep)[0]
         if module_name == '.':
             continue
 
@@ -66,7 +67,8 @@ def get_modules_files(
             processed_modules[module_name].append(filepath)
 
     return [
-        (module_name, os.path.join(base_dir, module_name.replace('.', os.sep)), module_files)
+        (module_name, os.path.join(base_dir,
+         module_name.replace('.', os.sep)), module_files)
         for module_name, module_files in processed_modules.items()
     ]
 

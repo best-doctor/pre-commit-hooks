@@ -102,9 +102,12 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
     var_info: List[Tuple[str, ast.AST]] = []
     assignments = [n for n in ast.walk(ast_tree) if isinstance(n, ast.Assign)]
     var_info += flat([get_var_names_from_assignment(a) for a in assignments])
-    ann_assignments = [n for n in ast.walk(ast_tree) if isinstance(n, ast.AnnAssign)]
-    var_info += flat([get_var_names_from_assignment(a) for a in ann_assignments])
-    funcdefs = [n for n in ast.walk(ast_tree) if isinstance(n, ast.FunctionDef)]
+    ann_assignments = [n for n in ast.walk(
+        ast_tree) if isinstance(n, ast.AnnAssign)]
+    var_info += flat([get_var_names_from_assignment(a)
+                     for a in ann_assignments])
+    funcdefs = [n for n in ast.walk(
+        ast_tree) if isinstance(n, ast.FunctionDef)]
     var_info += flat([get_var_names_from_funcdef(f) for f in funcdefs])
     fors = [n for n in ast.walk(ast_tree) if isinstance(n, ast.For)]
     var_info += flat([get_var_names_from_for(f) for f in fors])
@@ -128,7 +131,8 @@ def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
         yield node.iter
     nodes_to_iter = node.body  # type: ignore
     if isinstance(node, ast.Try):
-        nodes_to_iter = itertools.chain(node.body, node.finalbody, *[n.body for n in node.handlers])
+        nodes_to_iter = itertools.chain(
+            node.body, node.finalbody, *[n.body for n in node.handlers])
     for child_node in nodes_to_iter:
         if isinstance(child_node, nodes_with_subnodes):
             for subnode in iterate_over_expressions(child_node):
@@ -170,7 +174,8 @@ def is_import_from(import_node: Union[ast.Import, ast.ImportFrom], package_name:
     elif isinstance(import_node, ast.ImportFrom):
         if import_node.module and (import_node.module == package_name or import_node.module.startswith(prefix)):
             return True
-        full_imported_names = [f'{import_node.module}.{a.name}' for a in import_node.names]
+        full_imported_names = [
+            f'{import_node.module}.{a.name}' for a in import_node.names]
         for imported_name in full_imported_names:
             if imported_name == package_name or imported_name.startswith(prefix):
                 return True
@@ -218,7 +223,8 @@ def _is_classdef_has_base_classes(
     if module_name:
         for base_node in classdef_node.bases:
             if (
-                isinstance(base_node, ast.Attribute) and base_node.attr in base_classess
+                isinstance(
+                    base_node, ast.Attribute) and base_node.attr in base_classess
                 and isinstance(base_node.value, ast.Name) and base_node.value.id == module_name
             ):
                 return True
@@ -346,7 +352,8 @@ def get_check_decorators_includes(decorators_set: Set[str]) -> Callable[[ast.Cla
             return False
         decorators = None
         try:
-            decorators = {d.id for d in classdef_node.decorator_list if isinstance(d, ast.Name)}
+            decorators = {
+                d.id for d in classdef_node.decorator_list if isinstance(d, ast.Name)}
         except AttributeError:
             pass
         if decorators and decorators.intersection(decorators_set):

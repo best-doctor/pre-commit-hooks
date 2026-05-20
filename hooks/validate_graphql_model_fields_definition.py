@@ -15,7 +15,8 @@ def is_django_object_type_node(node: ast.AST) -> bool:
 
 
 def are_model_fields_implicitly_exposed(node: ast.AST) -> bool:
-    fields_explicit_definition_variable = get_variable_node_by_name(node, 'only_fields')
+    fields_explicit_definition_variable = get_variable_node_by_name(
+        node, 'only_fields')
     if fields_explicit_definition_variable:
         if isinstance(fields_explicit_definition_variable.value, (ast.List, ast.Tuple)):
             if fields_explicit_definition_variable.value.elts:

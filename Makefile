@@ -5,11 +5,16 @@ lint:
 	@pre-commit run --all-files
 
 install:
-	@pip-sync requirements.txt requirements_dev.txt
+	@pdm sync --dev
 
 lock:
-	@pip-compile --no-emit-index-url --generate-hashes
-	@pip-compile --no-emit-index-url --generate-hashes requirements_dev.in
+	pip install pdm
+	pdm lock --update-reuse
+	$(MAKE) lock-export
+
+lock-export:
+	@pdm export -o requirements.txt --prod --no-extras
+	@pdm export -o requirements_dev.txt -G dev --no-extras
 
 spelling:
 	@rozental .

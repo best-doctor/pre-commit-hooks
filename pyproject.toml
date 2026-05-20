@@ -1,0 +1,108 @@
+[project]
+name = "pre-commit-hooks"
+version = "2.0.0"
+description = "BestDoctor-wide pre-commit hooks."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Vladimir Kotikov", email = "v.kotikov@bestdoctor.ru" }]
+requires-python = ">=3.10"
+dependencies = [
+    "libcst==1.8.6",
+    "mccabe==0.7.0",
+    'pyyaml-ft==8.0.0; python_version == "3.13"',
+    'tomli>=2.0.1; python_version < "3.11"',
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+Homepage = "https://github.com/best-doctor/pre-commit-hooks"
+
+[project.scripts]
+validate_ajustable_complexity = "hooks.validate_ajustable_complexity:main"
+validate_amount_of_py_file_lines = "hooks.validate_amount_of_py_file_lines:main"
+validate_api_schema_annotations = "hooks.validate_api_schema_annotations:main"
+validate_django_null_true_comments = "hooks.validate_django_null_true_comments:main"
+validate_django_deprecated_model_field_comments = "hooks.validate_django_deprecated_model_field_comments:main"
+validate_django_model_field_names = "hooks.validate_django_model_field_names:main"
+validate_expressions_complexity = "hooks.validate_expressions_complexity:main"
+validate_graphql_model_fields_definition = "hooks.validate_graphql_model_fields_definition:main"
+validate_no_asserts = "hooks.validate_no_asserts:main"
+validate_no_forbidden_imports = "hooks.validate_no_forbidden_imports:main"
+validate_old_style_annotations = "hooks.validate_old_style_annotations:main"
+validate_package_structure = "hooks.validate_package_structure:main"
+validate_settings_variables = "hooks.validate_settings_variables:main"
+validate_test_namings = "hooks.validate_test_namings:main"
+validate_celery_tasks_return_types = "hooks.validate_celery_tasks_return_types:main"
+
+[dependency-groups]
+dev = [
+    "autopep8==2.3.2",
+    "flake8==7.3.0",
+    "flake8-pyproject>=1.2.3",
+    "mypy==1.19.1",
+    "pep8-naming==0.15.1",
+    "pre-commit==4.5.1",
+    "pytest==9.0.2",
+    "pytest-mock==3.15.1",
+    "rozental-as-a-service==1.2.2",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.build]
+includes = ["hooks"]
+
+[tool.pdm.lock]
+cross_platform = true
+
+[tool.flake8]
+max-line-length = 120
+exclude = ["venv"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "./types_stubs/"
+ignore_missing_imports = true
+warn_no_return = false
+check_untyped_defs = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+allow_redefinition = true
+follow_imports = "skip"
+exclude = '(env|venv|venv\\..*|tests)'
+
+[[tool.mypy.overrides]]
+module = "*.tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "mccabe.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "setuptools.*"
+ignore_missing_imports = true
+
+[tool.isort]
+line_length = 120
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+add_imports = ["from __future__ import annotations"]
+skip_gitignore = true
+skip = ["migrations", "venv"]

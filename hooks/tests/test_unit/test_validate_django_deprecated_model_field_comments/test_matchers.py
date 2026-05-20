@@ -71,7 +71,8 @@ from hooks.validate_django_deprecated_model_field_comments import (
 def test_django_model_field_with_leading_comment(source, expected_result):
     node = cst.parse_statement(textwrap.dedent(source))
 
-    assert matches(node, matcher=_django_model_field_with_leading_comment) == expected_result
+    assert matches(
+        node, matcher=_django_model_field_with_leading_comment) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -106,7 +107,8 @@ def test_django_model_field_with_leading_comment(source, expected_result):
 def test_django_model_field_with_trailing_comment(source, expected_result):
     node = cst.parse_statement(textwrap.dedent(source))
 
-    assert matches(node, matcher=_django_model_field_with_trailing_comment) == expected_result
+    assert matches(
+        node, matcher=_django_model_field_with_trailing_comment) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -141,4 +143,5 @@ def test_django_model_field_with_trailing_comment(source, expected_result):
 def test_django_model_field_with_comments(source, expected_result):
     node = cst.parse_statement(textwrap.dedent(source))
 
-    assert matches(node, matcher=django_model_field_with_comments) == expected_result
+    assert matches(
+        node, matcher=django_model_field_with_comments) == expected_result

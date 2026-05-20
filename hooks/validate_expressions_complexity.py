@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterator, List
 from hooks.utils.ast_helpers import get_ast_tree_with_content, is_django_orm_query, iterate_over_expressions
 from hooks.utils.pre_commit import get_input_files
 
-
 # Build the simple_type tuple based on Python version
 _simple_types = [
     ast.Name, ast.Import, ast.Bytes, ast.Nonlocal,
@@ -171,7 +170,8 @@ def format_exception(exception: BaseAstNodeError, filepath: str, file_lines: Lis
     error_message.write(line)
     error_message.write('\n')
     error_message.write(' ' * node.col_offset)
-    error_message.write('^' * ((node.end_col_offset or len(line)) - node.col_offset))
+    error_message.write(
+        '^' * ((node.end_col_offset or len(line)) - node.col_offset))
     return error_message.getvalue()
 
 
@@ -191,7 +191,8 @@ def get_file_errors(
         try:
             complexity = get_expression_complexity(expression)
         except UnknownAstNodeError as exc:
-            formatted_error_message = format_exception(exc, pyfilepath, file_lines)
+            formatted_error_message = format_exception(
+                exc, pyfilepath, file_lines)
             yield formatted_error_message
         else:
             if (

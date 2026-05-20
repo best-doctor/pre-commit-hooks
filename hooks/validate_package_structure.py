@@ -54,7 +54,8 @@ def has_only_models_in_models_submodule(module_name: str, module_path: str, modu
         ),
         (  # пропуск определений классов по декоратору
             ast.ClassDef,
-            get_check_decorators_includes({'pass_check_is_django_model_definition'}),
+            get_check_decorators_includes(
+                {'pass_check_is_django_model_definition'}),
         ),
         (  # определения депрекейтед функций
             ast.FunctionDef,
@@ -92,7 +93,8 @@ def all_enums_in_enums_py_module(module_name: str, module_path: str, module_file
             continue
         for classdef in [n for n in ast_tree.body if isinstance(n, ast.ClassDef)]:
             if is_enum_definition(classdef):
-                errors.append(f'{filepath}:{classdef.lineno} Enums should live in {allowed_enums_filename}')
+                errors.append(
+                    f'{filepath}:{classdef.lineno} Enums should live in {allowed_enums_filename}')
     return errors
 
 
@@ -102,11 +104,13 @@ def has_no_submodules_with_blacklisted_suffixes(
     errors = []
     for filepath in module_files:
         relative_path = os.path.relpath(filepath, module_path)
-        is_forbidden = relative_path.endswith('_utils.py') or relative_path.endswith('_helpers.py')
+        is_forbidden = relative_path.endswith(
+            '_utils.py') or relative_path.endswith('_helpers.py')
         is_tests = relative_path.startswith('tests/')
 
         if is_forbidden and not is_tests:
-            errors.append(f'{filepath} should be moved to utils subdirectory and remove suffix from filename')
+            errors.append(
+                f'{filepath} should be moved to utils subdirectory and remove suffix from filename')
 
         return errors
 
@@ -153,7 +157,8 @@ def views_py_has_only_class_views(module_name: str, module_path: str, module_fil
         if ast_tree is None:
             continue
 
-        functions = get_not_ok_base_nodes_from(ast_tree, allowed_ast_nodes, conditionals_ast_nodes)
+        functions = get_not_ok_base_nodes_from(
+            ast_tree, allowed_ast_nodes, conditionals_ast_nodes)
 
         errors.extend([
             f'{filepath}:{func.lineno} Only class views allowed in {views_py_filename}'
@@ -179,7 +184,8 @@ def urls_py_has_urlpatterns(module_name: str, module_path: str, module_files: Li
             continue
 
         if not get_assignments_to(ast_tree, target_assignment_name):
-            errors.append(f'{filepath} does not contain "{target_assignment_name}" assignment')
+            errors.append(
+                f'{filepath} does not contain "{target_assignment_name}" assignment')
 
     return errors
 
@@ -203,7 +209,8 @@ def no_url_calls(module_name: str, module_path: str, module_files: List[str]) ->
             ]
 
             for url_call in url_calls:
-                errors.append(f'{filepath}:{url_call.lineno} url() call is deprecated, use path() instead')
+                errors.append(
+                    f'{filepath}:{url_call.lineno} url() call is deprecated, use path() instead')
 
     return errors
 

@@ -122,9 +122,11 @@ class DeprecatedModelFieldValidator(m.MatcherDecoratableVisitor):
         trailing_comment = get_trailing_comment(node)
 
         if leading_comment and self.is_deprecation_comment(leading_comment):
-            is_valid_deprecation_comment = self.is_valid_deprecation_comment(leading_comment)
+            is_valid_deprecation_comment = self.is_valid_deprecation_comment(
+                leading_comment)
         elif trailing_comment and self.is_deprecation_comment(trailing_comment):
-            is_valid_deprecation_comment = self.is_valid_deprecation_comment(trailing_comment)
+            is_valid_deprecation_comment = self.is_valid_deprecation_comment(
+                trailing_comment)
         else:
             return None
 
@@ -186,8 +188,10 @@ def main(args: typing.Optional[typing.Sequence[str]] = None) -> int:
         ),
     )
     args, _ = parser.parse_known_args(args)
-    valid_deprecation_comment_pattern = re.compile(args.valid_deprecation_comment_regex)
-    deprecation_comment_marker_pattern = re.compile(args.deprecation_comment_marker_regex)
+    valid_deprecation_comment_pattern = re.compile(
+        args.valid_deprecation_comment_regex)
+    deprecation_comment_marker_pattern = re.compile(
+        args.deprecation_comment_marker_regex)
 
     has_errors = False
     for model_file_path in get_input_models_files():

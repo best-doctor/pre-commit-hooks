@@ -251,7 +251,8 @@ def test_check_schema_tag_presence(request, definition, file_path_fixture, expec
                 """
             ),
             'serializers_file_path',
-            [':2 missing `help_text` attribute', ':5 missing `help_text` attribute'],
+            [':2 missing `help_text` attribute',
+                ':5 missing `help_text` attribute'],
         ),
         (
             (

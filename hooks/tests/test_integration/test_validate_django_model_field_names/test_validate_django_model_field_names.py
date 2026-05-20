@@ -26,7 +26,8 @@ def test_validate_models_module():
         _datetime_error('package_a/models.py', 13, 'bad_datetime'),
         _date_error('package_a/models.py', 19, 'date_bad'),
         _datetime_error('package_a/models.py', 21, 'bad_datetime'),
-        _datetime_error('package_a/models.py', 23, 'my_bad_datetime', 'MyDateTimeExtraField'),
+        _datetime_error('package_a/models.py', 23,
+                        'my_bad_datetime', 'MyDateTimeExtraField'),
     ]
 
 

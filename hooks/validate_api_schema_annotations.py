@@ -142,7 +142,8 @@ def _check_classdef_hasattr(node: ast.ClassDef, attribute: str) -> bool:
             if attribute == assign.target.id:  # type: ignore
                 return True
             continue
-        assign_targets_names = [target.id for target in assign.targets]  # type: ignore
+        assign_targets_names = [
+            target.id for target in assign.targets]  # type: ignore
 
         if attribute in assign_targets_names:
             return True
@@ -238,19 +239,23 @@ def check_schema_wrapper_for_serializer_method_field(node: ast.ClassDef, file_pa
             continue
 
         if (
-            getattr(assign_value.func, 'id', None) != 'SerializerMethodField'  # type: ignore
-            and getattr(assign_value.func, 'attr', None) != 'SerializerMethodField'  # type: ignore
+            getattr(assign_value.func, 'id',
+                    None) != 'SerializerMethodField'  # type: ignore
+            # type: ignore
+            and getattr(assign_value.func, 'attr', None) != 'SerializerMethodField'
         ):
             continue
 
         assign_field_name = get_assign_name(assign)
-        serializer_field_method = get_serializer_field_method(node, assign_field_name)
+        serializer_field_method = get_serializer_field_method(
+            node, assign_field_name)
         if serializer_field_method is None:
             continue
 
         return_node = serializer_field_method.returns
         if _is_allowed_return_type(return_node) is False:  # type: ignore
-            errors.append(f':{assign.lineno} {node.name} serializer {assign_field_name} field missing SchemaWrapper')
+            errors.append(
+                f':{assign.lineno} {node.name} serializer {assign_field_name} field missing SchemaWrapper')
 
     return errors
 
@@ -292,7 +297,8 @@ def check_doctstrings_viewsets_dispatch_methods(node: ast.ClassDef, *args: typin
         return []
 
     errors = []
-    methods_to_check = ['list', 'retrieve', 'create', 'update', 'partial_update', 'delete']
+    methods_to_check = ['list', 'retrieve', 'create',
+                        'update', 'partial_update', 'delete']
 
     for function_def in get_classdef_methods(node):
         if function_def.name in methods_to_check:

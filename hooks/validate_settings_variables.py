@@ -36,11 +36,13 @@ def is_node_static(node: ast.AST) -> bool:
         child_nodes_with_straight_assignment = 0
         for child_node in ast.iter_child_nodes(node):
             if isinstance(
-                child_node, (ast.Constant, ast.BinOp, ast.Load, ast.Store, ast.Starred)
+                child_node, (ast.Constant, ast.BinOp,
+                             ast.Load, ast.Store, ast.Starred)
             ):
                 child_nodes_with_straight_assignment += 1
             else:
-                child_nodes_with_straight_assignment += is_node_static(child_node)
+                child_nodes_with_straight_assignment += is_node_static(
+                    child_node)
         return child_nodes_with_straight_assignment == len(
             list(ast.iter_child_nodes(node))
         )
@@ -213,7 +215,8 @@ def get_line_numbers_of_wrong_assignments(
     ast_content: typing.Optional[str],
     parent: ast.AST,
 ) -> typing.Sequence[LineError]:
-    line_errors: typing.List[LineError] = list(find_line_errors(node, ast_content, parent))
+    line_errors: typing.List[LineError] = list(
+        find_line_errors(node, ast_content, parent))
 
     uniq_errors: typing.Set[LineError] = set()
     result = []
