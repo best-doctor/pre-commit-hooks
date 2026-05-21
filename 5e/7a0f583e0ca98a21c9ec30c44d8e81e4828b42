@@ -1,0 +1,19 @@
+README.md
+  s_f8c16b4950931a::t_7ba2b30299fc4f 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "5e7a0f583e0ca98a21c9ec30c44d8e81e4828b42",
+  "prompts": {},
+  "sessions": {
+    "s_f8c16b4950931a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c33e00a9-cc31-40b0-b0a2-d0de633b1e3d",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  }
+}
