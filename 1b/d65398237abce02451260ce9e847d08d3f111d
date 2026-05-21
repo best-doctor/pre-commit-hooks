@@ -1,0 +1,19 @@
+.pre-commit-config.yaml
+  s_41dfcfb9121820::t_19f74d189b318f 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1bd65398237abce02451260ce9e847d08d3f111d",
+  "prompts": {},
+  "sessions": {
+    "s_41dfcfb9121820": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f220af2b-953b-4328-b626-f9116e815c32",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  }
+}
