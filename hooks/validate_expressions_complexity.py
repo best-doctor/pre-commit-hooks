@@ -19,7 +19,6 @@ from hooks.utils.pre_commit import get_input_files
 _simple_types = [
     ast.Name,
     ast.Import,
-    ast.Bytes,
     ast.Nonlocal,
     ast.ImportFrom,
     ast.Pass,
@@ -27,16 +26,13 @@ _simple_types = [
     ast.Break,
     ast.Continue,
     type(None),
-    ast.Ellipsis,
 ]
 
-# Add deprecated types if they exist (Python < 3.12)
-if hasattr(ast, 'Str'):
-    _simple_types.append(ast.Str)
-if hasattr(ast, 'Num'):
-    _simple_types.append(ast.Num)
-if hasattr(ast, 'NameConstant'):
-    _simple_types.append(ast.NameConstant)
+# Add deprecated types if they exist (removed in Python 3.14)
+for _deprecated_type_name in ('Str', 'Num', 'Bytes', 'NameConstant', 'Ellipsis'):
+    _deprecated_type = getattr(ast, _deprecated_type_name, None)
+    if _deprecated_type is not None:
+        _simple_types.append(_deprecated_type)
 
 # Add ast.Constant for Python 3.8+ (replaces Str, Num, NameConstant)
 if hasattr(ast, 'Constant'):
