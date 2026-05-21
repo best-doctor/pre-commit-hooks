@@ -70,7 +70,7 @@ def main() -> typing.Optional[int]:
         for error in errors:
             print(  # noqa: T001
                 f'{filepath}:{error.line}:{error.function_name} Invalid return type '
-                'should be AsyncTaskResult or None',
+                'should be AsyncTaskResult or None'
             )
 
     if has_errors:

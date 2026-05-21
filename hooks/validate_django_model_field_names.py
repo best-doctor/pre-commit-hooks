@@ -9,13 +9,7 @@ from hooks.utils.ast_helpers import get_ast_tree
 from hooks.utils.common_types import AssignOrAnnAssign
 from hooks.utils.pre_commit import get_input_files
 
-BOOLEAN_VERBS = (
-    'is',
-    'was',
-    'has',
-    'needs',
-    'should',
-)
+BOOLEAN_VERBS = ('is', 'was', 'has', 'needs', 'should')
 
 
 class BaseValidator:
@@ -99,6 +93,7 @@ def iterate_module_classdef_assigns(module: ast.Module) -> Iterator[AssignOrAnnA
 
 
 def get_assign_target_name(assign: AssignOrAnnAssign) -> Optional[str]:
+    target: ast.expr
     if isinstance(assign, ast.AnnAssign):
         target = assign.target
     else:

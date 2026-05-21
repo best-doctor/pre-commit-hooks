@@ -20,7 +20,13 @@ List the hooks you'd like to enable under the `hooks:` section.
 
 ## How do I configure it?
 
-All hooks obey flake8's exclude parameter in setup.cfg: `setup.cfg -> [flake8] -> exclude`.
+Hooks read shared settings from **`pyproject.toml` first**, then fall back to legacy **`setup.cfg`**.
+
+Exclude paths for most hooks (flake8-compatible):
+
+- `pyproject.toml -> [tool.flake8] -> exclude`
+- or `setup.cfg -> [flake8] -> exclude`
+
 Any path listed there will not be checked.
 
 Per-hook excludes can be configured with regular expression(s) in
@@ -35,11 +41,23 @@ this validator complains about:
 * functions with high (>8) cyclomatic complexity
 * variables with too "generic" names (like `items`, `foo`, `vals`, `vars` etc.).
 
-Configuration options:
+Configuration options (`[tool.flake8]` in `pyproject.toml` or `[flake8]` in `setup.cfg`):
 
-- `setup.cfg -> [flake8] -> adjustable-default-max-complexity` - maximum allowed cyclomatic complexity
-- `setup.cfg -> [flake8] -> per-path-max-complexity` - a list of 'file_name: complexity',
-  each item containing max complexity override for a file.
+- `adjustable-default-max-complexity` — maximum allowed cyclomatic complexity
+- `per-path-max-complexity` — list of `file_name: complexity` overrides per file
+
+<details>
+  <summary>pyproject.toml example</summary>
+
+  ```toml
+  [tool.flake8]
+  adjustable-default-max-complexity = 8
+  per-path-max-complexity = [
+      "legacy_module.py: 12",
+  ]
+  exclude = ["venv", ".venv"]
+  ```
+</details>
 
 ### `validate_amount_of_py_file_lines`
 
@@ -105,9 +123,20 @@ Prohibits `assert` statements in python files (ignores tests, of course).
 
 Forbids blacklisted imports
 
-Configuration:
+Configuration (`[tool.project_structure]` in `pyproject.toml` or `[project_structure]` in `setup.cfg`):
 
-- `setup.cfg -> [project_structure] -> forbidden_imports` - a list of blacklisted modules' names
+- `forbidden_imports` — list of blacklisted module names
+
+<details>
+  <summary>pyproject.toml example</summary>
+
+  ```toml
+  [tool.project_structure]
+  forbidden_imports = [
+      "django.db.backends",
+  ]
+  ```
+</details>
 
 ### `validate_old_style_annotations`
 
@@ -155,34 +184,31 @@ brew install gitleaks
 
 ## Setting up development environment
 
-This repo relies on [`pip-tools`](https://github.com/jazzband/pip-tools) as a package manager:
+This repo uses [PDM](https://pdm-project.org/) for dependency management.
 
 ```shell script
-pip install pip-tools
+pip install pdm
 ```
 
-Project dependencies are **locked** in two files:
-`requirements.txt` (mandatory) and `requirements_dev.txt` (development only).
+Lockfile: `pdm.lock`. Declared dependencies: `pyproject.toml`.
 
-These are used to install dependencies when building or setting up a project.
+Exported `requirements.txt` / `requirements_dev.txt` are generated for tools that still expect pip-style lockfiles.
 
 ```shell script
 make install
 ```
-will handle this for you.
 
 ### Local development & testing
 
 #### Managing project dependencies:
-1. Edit `requirements.in` / `requirements_dev.in` as per your needs.
+1. Edit dependencies in `pyproject.toml` (`[project.dependencies]` or `[dependency-groups].dev`).
 
-2. Lock dependencies.
+2. Lock and export:
    ```shell script
-   # this generates 'requirements.txt' and 'requirements_dev.txt'
    make lock
    ```
 
-3. Stage & commit all `requirements*` files.
+3. Stage & commit `pyproject.toml`, `pdm.lock`, and exported `requirements*.txt` if you ran `lock-export`.
 
 #### Creating a hook:
 
@@ -191,16 +217,15 @@ Next, register it in `.pre-commit-hooks.yaml`:
 ```yaml
 - id: panzerfaust
   name: Fausts panzers
-  entry: panzerfaustize  # that's the name you define in setup.cfg (see below)
+  entry: panzerfaustize  # console script name from pyproject.toml (see below)
   language: python
 ```
 
-In `setup.cfg` too:
-```сfg
-[options.entry_points]
-console_scripts =
-    ; references hooks/panzerfaustize.py
-    panzerfaustize = hooks.panzerfaustize:main
+Register the script in `pyproject.toml`:
+
+```toml
+[project.scripts]
+panzerfaustize = "hooks.panzerfaustize:main"
 ```
 
 #### Running hooks from local repo:

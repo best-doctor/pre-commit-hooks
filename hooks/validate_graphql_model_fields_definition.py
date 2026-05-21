@@ -8,9 +8,8 @@ from hooks.utils.pre_commit import get_input_files
 
 
 def is_django_object_type_node(node: ast.AST) -> bool:
-    return (
-        isinstance(node, ast.ClassDef)
-        and 'DjangoObjectType' in (base.id for base in node.bases if isinstance(base, ast.Name))
+    return isinstance(node, ast.ClassDef) and 'DjangoObjectType' in (
+        base.id for base in node.bases if isinstance(base, ast.Name)
     )
 
 
@@ -35,9 +34,11 @@ def main() -> Optional[int]:
                 continue
 
             if are_model_fields_implicitly_exposed(node):
-                print('{0}:{1} "{2}" implicitly exposes all model\'s fields'.format(  # noqa: T001
-                    pyfilepath, node.lineno, node.name,  # type: ignore
-                ))
+                print(
+                    '{0}:{1} "{2}" implicitly exposes all model\'s fields'.format(  # noqa: T001
+                        pyfilepath, node.lineno, node.name  # type: ignore
+                    )
+                )
 
     if has_errors:
         return 1

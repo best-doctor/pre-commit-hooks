@@ -20,8 +20,7 @@ def is_valid_comment(comment_text: str) -> bool:
 
 
 null_comment = m.TrailingWhitespace(
-    comment=m.Comment(m.MatchIfTrue(is_valid_comment)),
-    newline=m.Newline(),
+    comment=m.Comment(m.MatchIfTrue(is_valid_comment)), newline=m.Newline()
 )
 
 
@@ -68,7 +67,7 @@ class FieldValidator(m.MatcherDecoratableVisitor):
 
 
 def get_input_models_files(
-    args: List[str] = None, dirs_to_exclude: List[str] = None
+    args: list[str] | None = None, dirs_to_exclude: list[str] | None = None
 ) -> Iterator[str]:
     return (
         filepath
@@ -94,7 +93,7 @@ def main() -> int:
                 for line, col, field in errors:
                     print(  # noqa: T001
                         f'{model_file_path}:{line}:{col} Field "{field}" needs '
-                        'a valid comment for its\' "null=True"',
+                        'a valid comment for its\' "null=True"'
                     )
 
     if has_errors:

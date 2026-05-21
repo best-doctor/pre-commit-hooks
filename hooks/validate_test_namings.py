@@ -24,7 +24,9 @@ def get_funcdefs(ast_tree: ast.Module) -> List[AnyFuncdef]:
 
 def funcdef_with_fixture(test_funcdef: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> bool:
     for decorator in test_funcdef.decorator_list:
-        fixture_without_argument = isinstance(decorator, ast.Attribute) and decorator.attr == 'fixture'
+        fixture_without_argument = (
+            isinstance(decorator, ast.Attribute) and decorator.attr == 'fixture'
+        )
         fixture_with_argument = (
             isinstance(decorator, ast.Call)
             and isinstance(decorator.func, ast.Attribute)

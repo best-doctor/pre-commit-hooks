@@ -12,6 +12,24 @@ from hooks.utils.mypy_api_helpers import is_path_should_be_skipped
 AnyFuncdef = Union[ast.FunctionDef, ast.AsyncFunctionDef]
 
 
+def get_ast_node_lineno(node: ast.AST) -> int:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.lineno
+    raise TypeError(f'AST node {type(node)!r} has no lineno')
+
+
+def get_ast_node_col_offset(node: ast.AST) -> int:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.col_offset
+    raise TypeError(f'AST node {type(node)!r} has no col_offset')
+
+
+def get_ast_node_end_col_offset(node: ast.AST) -> int | None:
+    if isinstance(node, (ast.expr, ast.stmt)):
+        return node.end_col_offset
+    return None
+
+
 def get_classdef_methods(node: ast.ClassDef) -> Iterable[ast.FunctionDef]:
     for body_node in node.body:
         if isinstance(body_node, ast.FunctionDef):
@@ -66,9 +84,12 @@ def get_classdef_assignments(node: ast.ClassDef) -> Iterable[AssignOrAnnAssign]:
 
 def get_assign_name(node: AssignOrAnnAssign) -> str:
     if isinstance(node, ast.AnnAssign):
-        return node.target.id  # type: ignore
-    if node.targets[0]:
-        return node.targets[0].id  # type: ignore
+        if isinstance(node.target, ast.Name):
+            return node.target.id
+        raise ValueError('AnnAssign target must be a Name')
+    if node.targets and isinstance(node.targets[0], ast.Name):
+        return node.targets[0].id
+    raise ValueError('Assign target must be a Name')
 
 
 def get_var_names_from_assignment(
@@ -113,13 +134,16 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
 
 def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
     nodes_with_subnodes = (
-        ast.AsyncFunctionDef, ast.FunctionDef,
+        ast.AsyncFunctionDef,
+        ast.FunctionDef,
         ast.If,
-        ast.AsyncFor, ast.For,
+        ast.AsyncFor,
+        ast.For,
         ast.Module,
         ast.ClassDef,
         ast.Try,
-        ast.AsyncWith, ast.With,
+        ast.AsyncWith,
+        ast.With,
         ast.While,
     )
     if isinstance(node, (ast.If, ast.While)):
@@ -158,17 +182,24 @@ def is_django_orm_query(node: ast.AST) -> bool:
     for attribute_node in [n for n in ast.walk(node) if isinstance(n, ast.Attribute)]:
         if attribute_node.attr in django_orm_typical_methods:
             total_points_to_be_threated_as_django_orm_query += 1
-    return total_points_to_be_threated_as_django_orm_query >= points_required_to_be_threated_as_django_orm_query
+    return (
+        total_points_to_be_threated_as_django_orm_query
+        >= points_required_to_be_threated_as_django_orm_query
+    )
 
 
-def is_import_from(import_node: Union[ast.Import, ast.ImportFrom], package_name: str) -> bool:  # noqa: CCR001
+def is_import_from(
+    import_node: Union[ast.Import, ast.ImportFrom], package_name: str
+) -> bool:  # noqa: CCR001
     prefix = f'{package_name}.'
     if isinstance(import_node, ast.Import):
         for import_alias in import_node.names:
             if import_alias.name == package_name or import_alias.name.startswith(prefix):
                 return True
     elif isinstance(import_node, ast.ImportFrom):
-        if import_node.module and (import_node.module == package_name or import_node.module.startswith(prefix)):
+        if import_node.module and (
+            import_node.module == package_name or import_node.module.startswith(prefix)
+        ):
             return True
         full_imported_names = [f'{import_node.module}.{a.name}' for a in import_node.names]
         for imported_name in full_imported_names:
@@ -177,7 +208,9 @@ def is_import_from(import_node: Union[ast.Import, ast.ImportFrom], package_name:
     return False
 
 
-def get_imports_from(package_name: str, ast_tree: ast.AST) -> List[Union[ast.Import, ast.ImportFrom]]:
+def get_imports_from(
+    package_name: str, ast_tree: ast.AST
+) -> List[Union[ast.Import, ast.ImportFrom]]:
     imports: List[Union[ast.Import, ast.ImportFrom]] = []
     for import_node in ast.walk(ast_tree):
         if not isinstance(import_node, (ast.Import, ast.ImportFrom)):
@@ -188,7 +221,7 @@ def get_imports_from(package_name: str, ast_tree: ast.AST) -> List[Union[ast.Imp
 
 
 def has_import_of_function_from_package(
-    ast_tree: ast.AST, package_name: str, function_name: str,
+    ast_tree: ast.AST, package_name: str, function_name: str
 ) -> bool:
     url_import_from_nodes = get_imports_from(package_name, ast_tree=ast_tree)
 
@@ -201,9 +234,7 @@ def has_import_of_function_from_package(
 
 
 def _is_classdef_has_base_classes(
-    classdef_node: ast.ClassDef,
-    base_classess: Set[str],
-    module_name: Optional[str],
+    classdef_node: ast.ClassDef, base_classess: Set[str], module_name: Optional[str]
 ) -> bool:
     if not classdef_node.bases:
         return False
@@ -218,18 +249,17 @@ def _is_classdef_has_base_classes(
     if module_name:
         for base_node in classdef_node.bases:
             if (
-                isinstance(base_node, ast.Attribute) and base_node.attr in base_classess
-                and isinstance(base_node.value, ast.Name) and base_node.value.id == module_name
+                isinstance(base_node, ast.Attribute)
+                and base_node.attr in base_classess
+                and isinstance(base_node.value, ast.Name)
+                and base_node.value.id == module_name
             ):
                 return True
     return False
 
 
 def _inherited_from_base_model(classdef_node: ast.ClassDef) -> bool:
-    base_models_classes_names = {
-        'Model',
-        'AbstractBaseUser',
-    }
+    base_models_classes_names = {'Model', 'AbstractBaseUser'}
     return _is_classdef_has_base_classes(classdef_node, base_models_classes_names, 'models')
 
 
@@ -290,14 +320,16 @@ def get_all_funcdefs(ast_tree: ast.AST) -> List[AnyFuncdef]:
 
 
 def get_assignments_to(
-    ast_tree: ast.AST, target_name: str,
+    ast_tree: ast.AST, target_name: str
 ) -> List[Union[ast.Assign, ast.AnnAssign, ast.AugAssign]]:
     return [
-        ast_node for ast_node in ast.walk(ast_tree)
+        ast_node
+        for ast_node in ast.walk(ast_tree)
         if (
             isinstance(ast_node, ast.Assign)
             and any(
-                target.id == target_name for target in ast_node.targets
+                target.id == target_name
+                for target in ast_node.targets
                 if isinstance(target, ast.Name)
             )
         )
@@ -353,4 +385,5 @@ def get_check_decorators_includes(decorators_set: Set[str]) -> Callable[[ast.Cla
             return True
 
         return False
+
     return _decorator_includes

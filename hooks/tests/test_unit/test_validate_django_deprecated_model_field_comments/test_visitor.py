@@ -57,14 +57,7 @@ MODEL_FILE_PATH = 'some_app/models.py'
                     max_len=128, null=True
                 )  # null_for_compatibility
             """,
-            [
-                Error(
-                    model_file_path=MODEL_FILE_PATH,
-                    line=2,
-                    col=4,
-                    field='foo'
-                )
-            ],
+            [Error(model_file_path=MODEL_FILE_PATH, line=2, col=4, field='foo')],
         ),
         (
             """\
@@ -88,14 +81,7 @@ MODEL_FILE_PATH = 'some_app/models.py'
                     max_len=128, null=True
                 )  # deprecated at 20.11.2021
             """,
-            [
-                Error(
-                    model_file_path=MODEL_FILE_PATH,
-                    line=2,
-                    col=4,
-                    field='foo'
-                )
-            ],
+            [Error(model_file_path=MODEL_FILE_PATH, line=2, col=4, field='foo')],
         ),
     ],
     ids=[

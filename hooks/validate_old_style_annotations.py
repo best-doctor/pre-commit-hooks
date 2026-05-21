@@ -22,9 +22,7 @@ def main() -> Optional[int]:
             if isinstance(annotated, ast.Str):
                 has_errors = True
                 print(  # noqa: T001
-                    '{0}:{1} old style annotation'.format(
-                        pyfilepath, annotated.lineno,
-                    ),
+                    '{0}:{1} old style annotation'.format(pyfilepath, annotated.lineno)
                 )
 
     if has_errors:

@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.2.0
+  rev: v6.0.0
   hooks:
   - id: check-ast
   - id: check-executables-have-shebangs
@@ -10,7 +10,7 @@ repos:
   - id: trailing-whitespace
 
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.7.0
+    rev: v1.10.0
     hooks:
     -   id: python-check-blanket-noqa
         exclude: |
@@ -20,30 +20,33 @@ repos:
             hooks/tests/test_integration/test_validate_settings_variables.py
           )
 
+- repo: https://github.com/psf/black
+  rev: 26.5.0
+  hooks:
+  - id: black
+    language_version: python
+
 - repo: https://github.com/PyCQA/isort
-  rev: '5.7.0'
+  rev: 8.0.1
   hooks:
   - id: isort
     exclude: hooks/tests/test_integration/test_validate_django_model_field_names/samples
 
-- repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.4
-  hooks:
-  - id: autopep8
-
-- repo: https://gitlab.com/pycqa/flake8
-  rev: '3.8.2'
+- repo: https://github.com/PyCQA/flake8
+  rev: 7.3.0
   hooks:
   - id: flake8
+    additional_dependencies:
+      - flake8-pyproject>=1.2.3
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.812
+  rev: v2.1.0
   hooks:
   - id: mypy
     exclude: hooks/tests
 
 - repo: https://github.com/best-doctor/pre-commit-hooks
-  rev: v1.0.4
+  rev: v1.0.11
   hooks:
   - id: mccabe-complexity
     name: Check functions complexity

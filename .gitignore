@@ -45,6 +45,8 @@ coverage.xml
 # Environments
 .env
 .venv
+.pdm-python
+.pdm-build
 env/
 venv/
 ENV/

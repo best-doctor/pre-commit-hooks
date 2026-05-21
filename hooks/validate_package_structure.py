@@ -25,6 +25,7 @@ from typing import Callable, List, Optional
 
 from hooks.utils.ast_helpers import (
     get_assignments_to,
+    get_ast_node_lineno,
     get_ast_tree,
     get_check_decorators_includes,
     get_not_ok_base_nodes_from,
@@ -36,31 +37,28 @@ from hooks.utils.ast_helpers import (
 from hooks.utils.pre_commit import get_input_files, get_modules_files, is_django_model_file
 
 
-def has_only_models_in_models_submodule(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
+def has_only_models_in_models_submodule(
+    module_name: str, module_path: str, module_files: List[str]
+) -> List[str]:
     logger_object_name = 'logger'
 
-    allowed_ast_nodes = {
-        ast.Import,
-        ast.ImportFrom,
-        ast.If,
-    }
+    allowed_ast_nodes = {ast.Import, ast.ImportFrom, ast.If}
 
     conditionals_ast_nodes = logger_ast_nodes_conditional(logger_object_name)
 
-    conditionals_ast_nodes.extend([
-        (  # определения моделей
-            ast.ClassDef,
-            is_django_model_definition,
-        ),
-        (  # пропуск определений классов по декоратору
-            ast.ClassDef,
-            get_check_decorators_includes({'pass_check_is_django_model_definition'}),
-        ),
-        (  # определения депрекейтед функций
-            ast.FunctionDef,
-            get_check_decorators_includes({'deprecated'}),
-        ),
-    ])
+    conditionals_ast_nodes.extend(
+        [
+            (ast.ClassDef, is_django_model_definition),  # определения моделей
+            (  # пропуск определений классов по декоратору
+                ast.ClassDef,
+                get_check_decorators_includes({'pass_check_is_django_model_definition'}),
+            ),
+            (  # определения депрекейтед функций
+                ast.FunctionDef,
+                get_check_decorators_includes({'deprecated'}),
+            ),
+        ]
+    )
 
     errors: List[str] = []
 
@@ -72,15 +70,19 @@ def has_only_models_in_models_submodule(module_name: str, module_path: str, modu
         if ast_tree is None:
             continue
 
-        for bad_node in get_not_ok_base_nodes_from(ast_tree, allowed_ast_nodes, conditionals_ast_nodes):
+        for bad_node in get_not_ok_base_nodes_from(
+            ast_tree, allowed_ast_nodes, conditionals_ast_nodes
+        ):
             errors.append(
-                f'{filepath}:{bad_node.lineno} Wrong instruction for models '
-                f'submodule (models should contains only models)',
+                f'{filepath}:{get_ast_node_lineno(bad_node)} Wrong instruction for models '
+                f'submodule (models should contains only models)'
             )
     return errors
 
 
-def all_enums_in_enums_py_module(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
+def all_enums_in_enums_py_module(
+    module_name: str, module_path: str, module_files: List[str]
+) -> List[str]:
     allowed_enums_filename = 'enums.py'
     errors = []
     for filepath in module_files:
@@ -92,12 +94,14 @@ def all_enums_in_enums_py_module(module_name: str, module_path: str, module_file
             continue
         for classdef in [n for n in ast_tree.body if isinstance(n, ast.ClassDef)]:
             if is_enum_definition(classdef):
-                errors.append(f'{filepath}:{classdef.lineno} Enums should live in {allowed_enums_filename}')
+                errors.append(
+                    f'{filepath}:{classdef.lineno} Enums should live in {allowed_enums_filename}'
+                )
     return errors
 
 
 def has_no_submodules_with_blacklisted_suffixes(
-    module_name: str, module_path: str, module_files: List[str],
+    module_name: str, module_path: str, module_files: List[str]
 ) -> List[str]:
     errors = []
     for filepath in module_files:
@@ -106,9 +110,11 @@ def has_no_submodules_with_blacklisted_suffixes(
         is_tests = relative_path.startswith('tests/')
 
         if is_forbidden and not is_tests:
-            errors.append(f'{filepath} should be moved to utils subdirectory and remove suffix from filename')
+            errors.append(
+                f'{filepath} should be moved to utils subdirectory and remove suffix from filename'
+            )
 
-        return errors
+    return errors
 
 
 def has_no_empty_py_files(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
@@ -128,17 +134,13 @@ def has_no_empty_py_files(module_name: str, module_path: str, module_files: List
     return errors
 
 
-def views_py_has_only_class_views(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
+def views_py_has_only_class_views(
+    module_name: str, module_path: str, module_files: List[str]
+) -> List[str]:
     views_py_filename = 'views.py'
     logger_object_name = 'logger'
 
-    allowed_ast_nodes = {
-        ast.Import,
-        ast.ImportFrom,
-        ast.If,
-        ast.ClassDef,
-        ast.Assign,
-    }
+    allowed_ast_nodes = {ast.Import, ast.ImportFrom, ast.If, ast.ClassDef, ast.Assign}
 
     conditionals_ast_nodes = logger_ast_nodes_conditional(logger_object_name)
 
@@ -155,15 +157,19 @@ def views_py_has_only_class_views(module_name: str, module_path: str, module_fil
 
         functions = get_not_ok_base_nodes_from(ast_tree, allowed_ast_nodes, conditionals_ast_nodes)
 
-        errors.extend([
-            f'{filepath}:{func.lineno} Only class views allowed in {views_py_filename}'
-            for func in functions
-        ])
+        errors.extend(
+            [
+                f'{filepath}:{get_ast_node_lineno(func)} Only class views allowed in {views_py_filename}'
+                for func in functions
+            ]
+        )
 
     return errors
 
 
-def urls_py_has_urlpatterns(module_name: str, module_path: str, module_files: List[str]) -> List[str]:
+def urls_py_has_urlpatterns(
+    module_name: str, module_path: str, module_files: List[str]
+) -> List[str]:
     urls_py_filename = 'urls.py'
     target_assignment_name = 'urlpatterns'
 
@@ -171,7 +177,9 @@ def urls_py_has_urlpatterns(module_name: str, module_path: str, module_files: Li
 
     for filepath in module_files:
         filename = os.path.basename(filepath)
-        if urls_py_filename != filename or os.path.relpath(filepath, module_path).startswith('tests/'):
+        if urls_py_filename != filename or os.path.relpath(filepath, module_path).startswith(
+            'tests/'
+        ):
             continue
 
         ast_tree = get_ast_tree(filepath)
@@ -194,7 +202,8 @@ def no_url_calls(module_name: str, module_path: str, module_files: List[str]) ->
 
         if has_import_of_function_from_package(ast_tree, 'django.conf.urls', 'url'):
             url_calls = [
-                ast_node for ast_node in ast.walk(ast_tree)
+                ast_node
+                for ast_node in ast.walk(ast_tree)
                 if (
                     isinstance(ast_node, ast.Call)
                     and isinstance(ast_node.func, ast.Name)
@@ -203,7 +212,9 @@ def no_url_calls(module_name: str, module_path: str, module_files: List[str]) ->
             ]
 
             for url_call in url_calls:
-                errors.append(f'{filepath}:{url_call.lineno} url() call is deprecated, use path() instead')
+                errors.append(
+                    f'{filepath}:{url_call.lineno} url() call is deprecated, use path() instead'
+                )
 
     return errors
 
@@ -220,7 +231,9 @@ def main() -> Optional[int]:
         no_url_calls,
     ]
     errors: List[str] = []
-    for module_name, module_path, module_files in get_modules_files(get_input_files(dirs_to_exclude=[])):
+    for module_name, module_path, module_files in get_modules_files(
+        get_input_files(dirs_to_exclude=[])
+    ):
         for validator in module_validators:
             errors += validator(module_name, module_path, module_files)
 

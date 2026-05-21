@@ -4,7 +4,7 @@ import ast
 from typing import List, Optional
 
 from hooks.utils.ast_helpers import get_ast_tree, get_full_imported_name
-from hooks.utils.mypy_api_helpers import get_list_param_from_config
+from hooks.utils.mypy_api_helpers import get_list_param_from_configs
 from hooks.utils.pre_commit import get_input_files
 
 
@@ -14,9 +14,12 @@ def is_import_in_list(imported_name: str, forbidden_imports: List[str]) -> bool:
     for forbidden_import in forbidden_imports:
         if forbidden_import.startswith(f'{imported_name}.'):
             return True
+    return False
 
 
-def get_import_errors_in_ast_tree(pyfilepath: str, ast_tree: ast.AST, forbidden_imports: List[str]) -> List[str]:
+def get_import_errors_in_ast_tree(
+    pyfilepath: str, ast_tree: ast.AST, forbidden_imports: List[str]
+) -> List[str]:
     errors: List[str] = []
     imports = [n for n in ast.walk(ast_tree) if isinstance(n, (ast.Import, ast.ImportFrom))]
     for import_node in imports:
@@ -27,7 +30,7 @@ def get_import_errors_in_ast_tree(pyfilepath: str, ast_tree: ast.AST, forbidden_
 
 
 def main() -> Optional[int]:
-    forbidden_imports = get_list_param_from_config('setup.cfg', 'project_structure', 'forbidden_imports')
+    forbidden_imports = get_list_param_from_configs('project_structure', 'forbidden_imports')
     if not forbidden_imports:
         return None
 

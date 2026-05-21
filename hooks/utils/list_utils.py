@@ -4,8 +4,7 @@ import typing
 
 
 class SupportsLessThan(typing.Protocol):
-    def __lt__(self, __other: typing.Any) -> bool:
-        ...
+    def __lt__(self, __other: typing.Any) -> bool: ...
 
 
 T = typing.TypeVar('T', bound=SupportsLessThan)
