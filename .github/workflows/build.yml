@@ -19,6 +19,7 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13'
+          - '3.14'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -31,4 +32,3 @@ jobs:
         run: pdm install --dev
       - run: pdm run make lint
       - run: pdm run make test
-      - run: pdm run make spelling
