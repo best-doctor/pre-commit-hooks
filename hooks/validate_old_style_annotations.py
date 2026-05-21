@@ -8,6 +8,15 @@ from hooks.utils.ast_helpers import get_ast_tree_with_content
 from hooks.utils.pre_commit import get_input_files
 
 
+def _is_old_style_string_annotation(node: ast.expr | None) -> bool:
+    if node is None:
+        return False
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return True
+    str_node_type = getattr(ast, 'Str', None)
+    return str_node_type is not None and isinstance(node, str_node_type)
+
+
 def main() -> Optional[int]:
     has_errors = False
     for pyfilepath in get_input_files():
@@ -19,7 +28,7 @@ def main() -> Optional[int]:
             [n.annotation for n in ast.walk(ast_tree) if isinstance(n, ast.arg) and n.annotation],
             [n.returns for n in ast.walk(ast_tree) if isinstance(n, ast.FunctionDef) and n.returns],
         ):
-            if isinstance(annotated, ast.Str):
+            if _is_old_style_string_annotation(annotated):
                 has_errors = True
                 print(  # noqa: T001
                     '{0}:{1} old style annotation'.format(pyfilepath, annotated.lineno)
