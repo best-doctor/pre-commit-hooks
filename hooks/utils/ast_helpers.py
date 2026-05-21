@@ -13,19 +13,19 @@ AnyFuncdef = Union[ast.FunctionDef, ast.AsyncFunctionDef]
 
 
 def get_ast_node_lineno(node: ast.AST) -> int:
-    if isinstance(node, (ast.expr, ast.stmt)):
+    if isinstance(node, (ast.expr, ast.stmt, ast.arg)):
         return node.lineno
     raise TypeError(f'AST node {type(node)!r} has no lineno')
 
 
 def get_ast_node_col_offset(node: ast.AST) -> int:
-    if isinstance(node, (ast.expr, ast.stmt)):
+    if isinstance(node, (ast.expr, ast.stmt, ast.arg)):
         return node.col_offset
     raise TypeError(f'AST node {type(node)!r} has no col_offset')
 
 
 def get_ast_node_end_col_offset(node: ast.AST) -> int | None:
-    if isinstance(node, (ast.expr, ast.stmt)):
+    if isinstance(node, (ast.expr, ast.stmt, ast.arg)):
         return node.end_col_offset
     return None
 

@@ -1,6 +1,6 @@
 [project]
 name = "pre-commit-hooks"
-version = "2.0.0"
+version = "2.1.0"
 description = "BestDoctor-wide pre-commit hooks."
 readme = "README.md"
 license = { text = "MIT" }
@@ -10,6 +10,7 @@ dependencies = [
     "libcst==1.8.6",
     "mccabe==0.7.0",
     'pyyaml-ft==8.0.0; python_version == "3.13"',
+    'pyyaml>=6.0.3; python_version >= "3.14"',
     'tomli>=2.0.1; python_version < "3.11"',
 ]
 classifiers = [
@@ -20,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 
