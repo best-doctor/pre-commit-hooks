@@ -7,6 +7,7 @@ import pytest
 from hooks.utils.ast_helpers import (
     _is_classdef_has_base_classes,
     get_assign_name,
+    get_ast_node_lineno,
     get_full_imported_name,
     get_var_names_from_assignment,
     get_var_names_from_funcdef,
@@ -41,6 +42,12 @@ def test_get_var_names_from_funcdef_success_case(def_str, variables_names):
     funcdef_node = ast.parse(def_str).body[0]
     actual_result = get_var_names_from_funcdef(funcdef_node)
     assert [r[0] for r in actual_result] == variables_names
+
+
+def test_get_ast_node_lineno__returns_lineno_for_function_argument():
+    function_argument = ast.parse('def foo(a): pass').body[0].args.args[0]
+
+    assert get_ast_node_lineno(function_argument) == 1
 
 
 @pytest.mark.parametrize(
