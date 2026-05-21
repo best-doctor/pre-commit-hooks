@@ -1,0 +1,24 @@
+hooks/validate_expressions_complexity.py
+  s_01bd6cc6ac7a6b::t_88ab52baa94dc5 31-35
+hooks/validate_old_style_annotations.py
+  s_01bd6cc6ac7a6b::t_204dcfda60d300 31
+  s_01bd6cc6ac7a6b::t_ab0f6eb228070a 11-19
+pyproject.toml
+  s_01bd6cc6ac7a6b::t_6890ad48d50a05 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "67b21f49539320b2c593554b34d9a59b7aba3a6f",
+  "prompts": {},
+  "sessions": {
+    "s_01bd6cc6ac7a6b": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ade06dce-96c9-478f-a5d6-0b2339d7c2be",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>"
+    }
+  }
+}
