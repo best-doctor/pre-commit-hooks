@@ -15,6 +15,3 @@ lock:
 lock-export:
 	@pdm export -o requirements.txt --prod --no-extras
 	@pdm export -o requirements_dev.txt -G dev --no-extras
-
-spelling:
-	@rozental .

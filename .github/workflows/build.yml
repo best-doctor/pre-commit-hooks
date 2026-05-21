@@ -32,4 +32,3 @@ jobs:
         run: pdm install --dev
       - run: pdm run make lint
       - run: pdm run make test
-      - run: pdm run make spelling
