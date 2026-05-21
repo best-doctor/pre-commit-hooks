@@ -58,19 +58,17 @@ def test__get_param_from_config__parses_setup_cfg_sections(
     setup_cfg_path = tmp_path / 'setup.cfg'
     setup_cfg_path.write_text(setup_cfg_content, encoding='utf-8')
 
-    assert get_param_from_config(
-        str(setup_cfg_path), section_name, param_name) == expected_value
+    assert get_param_from_config(str(setup_cfg_path), section_name, param_name) == expected_value
 
 
-def test__get_list_param_from_config__parses_multiline_setup_cfg(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test__get_list_param_from_config__parses_multiline_setup_cfg(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Arrange: multiline list in setup.cfg. Act: read list param. Assert: all lines returned."""
     monkeypatch.chdir(tmp_path)
     setup_cfg_path = tmp_path / 'setup.cfg'
     setup_cfg_path.write_text(
-        '[flake8]\n'
-        'per-path-max-complexity =\n'
-        '    legacy.py: 12\n'
-        '    other.py: 9\n',
+        '[flake8]\n' 'per-path-max-complexity =\n' '    legacy.py: 12\n' '    other.py: 9\n',
         encoding='utf-8',
     )
 
@@ -116,18 +114,18 @@ def test__get_param_from_configs__parses_pyproject_toml(
 ) -> None:
     """Arrange: pyproject.toml with tool section. Act: read param. Assert: normalized scalar value."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath('pyproject.toml').write_text(
-        pyproject_content, encoding='utf-8')
+    tmp_path.joinpath('pyproject.toml').write_text(pyproject_content, encoding='utf-8')
 
     assert get_param_from_configs(section_name, param_name) == expected_value
 
 
-def test__get_list_param_from_configs__parses_pyproject_toml_array(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test__get_list_param_from_configs__parses_pyproject_toml_array(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Arrange: TOML array for per-path rules. Act: read list param. Assert: array items preserved."""
     monkeypatch.chdir(tmp_path)
     tmp_path.joinpath('pyproject.toml').write_text(
-        '[tool.flake8]\n'
-        'per-path-max-complexity = ["legacy.py: 12", "other.py: 9"]\n',
+        '[tool.flake8]\n' 'per-path-max-complexity = ["legacy.py: 12", "other.py: 9"]\n',
         encoding='utf-8',
     )
 
@@ -138,30 +136,28 @@ def test__get_list_param_from_configs__parses_pyproject_toml_array(tmp_path, mon
 
 
 def test__get_list_param_from_configs__parses_multiline_pyproject_string(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Arrange: multiline string in pyproject. Act: read list param. Assert: lines split correctly."""
     monkeypatch.chdir(tmp_path)
     tmp_path.joinpath('pyproject.toml').write_text(
-        '[tool.project_structure]\n'
-        'forbidden_imports = """\n'
-        'pkg.a\n'
-        'pkg.b\n'
-        '"""\n',
+        '[tool.project_structure]\n' 'forbidden_imports = """\n' 'pkg.a\n' 'pkg.b\n' '"""\n',
         encoding='utf-8',
     )
 
-    assert get_list_param_from_configs(
-        'project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
+    assert get_list_param_from_configs('project_structure', 'forbidden_imports') == [
+        'pkg.a',
+        'pkg.b',
+    ]
 
 
-def test__load_pyproject_toml__parses_nested_tool_sections(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test__load_pyproject_toml__parses_nested_tool_sections(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Arrange: pyproject with project and tool tables. Act: load TOML. Assert: nested mapping available."""
     monkeypatch.chdir(tmp_path)
     tmp_path.joinpath('pyproject.toml').write_text(
-        '[project]\nname = "demo"\n\n[tool.flake8]\nmax-line-length = 120\n',
-        encoding='utf-8',
+        '[project]\nname = "demo"\n\n[tool.flake8]\nmax-line-length = 120\n', encoding='utf-8'
     )
 
     loaded = _load_pyproject_toml()
@@ -171,39 +167,34 @@ def test__load_pyproject_toml__parses_nested_tool_sections(tmp_path, monkeypatch
 
 
 def test__get_param_from_configs__pyproject_precedence_over_setup_cfg(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Arrange: same key in both files with different values. Act: read param. Assert: pyproject wins."""
     monkeypatch.chdir(tmp_path)
     tmp_path.joinpath('pyproject.toml').write_text(
-        '[tool.flake8]\nexclude = ["from_pyproject"]\n',
-        encoding='utf-8',
+        '[tool.flake8]\nexclude = ["from_pyproject"]\n', encoding='utf-8'
     )
     tmp_path.joinpath('setup.cfg').write_text(
-        '[flake8]\nexclude = from_setup_cfg\n',
-        encoding='utf-8',
+        '[flake8]\nexclude = from_setup_cfg\n', encoding='utf-8'
     )
 
     assert get_param_from_configs('flake8', 'exclude') == 'from_pyproject'
 
 
 def test__get_list_param_from_configs__falls_back_to_setup_cfg_multiline(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Arrange: list only in setup.cfg. Act: read via unified API. Assert: setup.cfg multiline parsed."""
     monkeypatch.chdir(tmp_path)
     tmp_path.joinpath('setup.cfg').write_text(
-        '[project_structure]\n'
-        'forbidden_imports =\n'
-        '    pkg.a\n'
-        '    pkg.b\n',
+        '[project_structure]\n' 'forbidden_imports =\n' '    pkg.a\n' '    pkg.b\n',
         encoding='utf-8',
     )
 
-    assert get_list_param_from_configs(
-        'project_structure', 'forbidden_imports') == ['pkg.a', 'pkg.b']
+    assert get_list_param_from_configs('project_structure', 'forbidden_imports') == [
+        'pkg.a',
+        'pkg.b',
+    ]
 
 
 @pytest.mark.parametrize(
@@ -232,28 +223,25 @@ def test__get_exclude_dirs_from_config__parses_exclude_from_both_formats(
 ) -> None:
     """Arrange: exclude in setup.cfg or pyproject. Act: read exclude dirs. Assert: comma/list normalized."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath(config_source).write_text(
-        config_content, encoding='utf-8')
+    tmp_path.joinpath(config_source).write_text(config_content, encoding='utf-8')
 
     assert get_exclude_dirs_from_config('flake8', 'exclude') == expected_dirs
 
 
-def test__get_param_from_configs__returns_none_when_missing(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test__get_param_from_configs__returns_none_when_missing(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Arrange: empty directory without config files. Act: read unknown param. Assert: None."""
     monkeypatch.chdir(tmp_path)
 
-    assert get_param_from_configs(
-        'flake8', 'adjustable-default-max-complexity') is None
+    assert get_param_from_configs('flake8', 'adjustable-default-max-complexity') is None
 
 
 def test__get_list_param_from_configs__returns_empty_list_when_missing(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Arrange: setup.cfg without list param. Act: read list param. Assert: empty list."""
     monkeypatch.chdir(tmp_path)
-    tmp_path.joinpath('setup.cfg').write_text(
-        '[flake8]\nmax-line-length = 120\n', encoding='utf-8')
+    tmp_path.joinpath('setup.cfg').write_text('[flake8]\nmax-line-length = 120\n', encoding='utf-8')
 
-    assert get_list_param_from_configs(
-        'flake8', 'per-path-max-complexity') == []
+    assert get_list_param_from_configs('flake8', 'per-path-max-complexity') == []

@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from hooks.utils.pre_commit import get_input_files, get_input_test_files, get_modules_files, is_django_model_file
+from hooks.utils.pre_commit import (
+    get_input_files,
+    get_input_test_files,
+    get_modules_files,
+    is_django_model_file,
+)
 
 
 def test__get_input_files__yields_single_py_file(tmp_path):
@@ -42,16 +47,12 @@ def test_get_modules_files():
         '/patients/another/file.py',
         '/some/module/not/in/modules/list.py',
         '/root_level_file.py',
-
     ]
 
     result = list(get_modules_files(test_entries, base_dir='/'))
 
     assert result == [
-        ('orders', '/orders', [
-            '/orders/some/nested/file.py',
-            '/orders/some/other/nested/file.py',
-        ]),
+        ('orders', '/orders', ['/orders/some/nested/file.py', '/orders/some/other/nested/file.py']),
         ('patients', '/patients', ['/patients/another/file.py']),
         ('some', '/some', ['/some/module/not/in/modules/list.py']),
     ]

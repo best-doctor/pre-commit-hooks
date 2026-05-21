@@ -20,8 +20,7 @@ def is_valid_comment(comment_text: str) -> bool:
 
 
 null_comment = m.TrailingWhitespace(
-    comment=m.Comment(m.MatchIfTrue(is_valid_comment)),
-    newline=m.Newline(),
+    comment=m.Comment(m.MatchIfTrue(is_valid_comment)), newline=m.Newline()
 )
 
 
@@ -35,18 +34,15 @@ field_without_comment = m.SimpleStatementLine(
                         m.Arg(keyword=m.Name('null'), value=m.Name('True')),
                         m.ZeroOrMore(),
                     ],
-                    whitespace_before_args=m.DoesNotMatch(
-                        m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
                 )
                 | m.Call(
                     func=m.Attribute(attr=m.Name('NullBooleanField')),
-                    whitespace_before_args=m.DoesNotMatch(
-                        m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
                 )
                 | m.Call(
                     func=m.Name('NullBooleanField'),
-                    whitespace_before_args=m.DoesNotMatch(
-                        m.ParenthesizedWhitespace(null_comment)),
+                    whitespace_before_args=m.DoesNotMatch(m.ParenthesizedWhitespace(null_comment)),
                 )
             )
         )
@@ -67,12 +63,11 @@ class FieldValidator(m.MatcherDecoratableVisitor):
         if self.matches(node, field_without_comment):
             position = self.get_metadata(PositionProvider, node).start
             field_name = cast(Assign, node.body[0]).targets[0].target.value
-            self.errors.append(
-                Error(position.line, position.column, field_name))
+            self.errors.append(Error(position.line, position.column, field_name))
 
 
 def get_input_models_files(
-    args: list[str] | None = None, dirs_to_exclude: list[str] | None = None,
+    args: list[str] | None = None, dirs_to_exclude: list[str] | None = None
 ) -> Iterator[str]:
     return (
         filepath
@@ -98,7 +93,7 @@ def main() -> int:
                 for line, col, field in errors:
                     print(  # noqa: T001
                         f'{model_file_path}:{line}:{col} Field "{field}" needs '
-                        'a valid comment for its\' "null=True"',
+                        'a valid comment for its\' "null=True"'
                     )
 
     if has_errors:

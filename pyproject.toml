@@ -45,7 +45,8 @@ validate_celery_tasks_return_types = "hooks.validate_celery_tasks_return_types:m
 
 [dependency-groups]
 dev = [
-    "autopep8==2.3.2",
+    "black==26.5.0",
+    "isort==8.0.1",
     "flake8==7.3.0",
     "flake8-pyproject>=1.2.3",
     "mypy==1.19.1",
@@ -96,6 +97,12 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "setuptools.*"
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+skip-string-normalization = true
+skip-magic-trailing-comma = true
 
 [tool.isort]
 line_length = 120

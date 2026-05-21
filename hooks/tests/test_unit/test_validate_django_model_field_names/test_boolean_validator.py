@@ -6,7 +6,8 @@ from hooks.validate_django_model_field_names import boolean_validator
 
 
 @pytest.mark.parametrize(
-    ('field_name', 'expected_is_valid'), [
+    ('field_name', 'expected_is_valid'),
+    [
         ('is_accepted', True),
         ('was_migrated_from_specialties', True),
         ('has_public_link_access', True),
@@ -18,7 +19,7 @@ from hooks.validate_django_model_field_names import boolean_validator
         ('available_for_adults', False),
         ('need_med_consent', False),
         ('pay_lock', False),
-    ]
+    ],
 )
 def test_boolean_validator(field_name, expected_is_valid):
     assert boolean_validator.validate(field_name) is expected_is_valid

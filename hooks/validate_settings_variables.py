@@ -10,10 +10,7 @@ from collections import deque
 from hooks.utils.ast_helpers import get_ast_node_lineno, get_ast_tree_with_content
 from hooks.utils.pre_commit import get_input_files
 
-NOQA_FOR_SETTINGS_VARIABLES = [
-    '# noqa: allowed straight assignment',
-    '# noqa: static object',
-]
+NOQA_FOR_SETTINGS_VARIABLES = ['# noqa: allowed straight assignment', '# noqa: static object']
 
 
 class Reasons(enum.Enum):
@@ -35,17 +32,11 @@ def is_node_static(node: ast.AST) -> bool:
     if isinstance(node, (ast.List, ast.Dict, ast.Tuple)):
         child_nodes_with_straight_assignment = 0
         for child_node in ast.iter_child_nodes(node):
-            if isinstance(
-                child_node, (ast.Constant, ast.BinOp,
-                             ast.Load, ast.Store, ast.Starred)
-            ):
+            if isinstance(child_node, (ast.Constant, ast.BinOp, ast.Load, ast.Store, ast.Starred)):
                 child_nodes_with_straight_assignment += 1
             else:
-                child_nodes_with_straight_assignment += is_node_static(
-                    child_node)
-        return child_nodes_with_straight_assignment == len(
-            list(ast.iter_child_nodes(node))
-        )
+                child_nodes_with_straight_assignment += is_node_static(child_node)
+        return child_nodes_with_straight_assignment == len(list(ast.iter_child_nodes(node)))
     else:
         return False
 
@@ -107,26 +98,14 @@ GETENV_RULES = [
         ast.Subscript,
         {
             'value': AstRule(
-                ast.Attribute,
-                {
-                    'attr': 'environ',
-                    'value': AstRule(ast.Name, {'id': 'os'}),
-                },
-            ),
+                ast.Attribute, {'attr': 'environ', 'value': AstRule(ast.Name, {'id': 'os'})}
+            )
         },
     ),
     # getenv('foo', '')
     # "Call(func=Name(id='getenv', ctx=Load()), args=[Constant(value='foo', "
     # "kind=None), Constant(value='', kind=None)], keywords=[])"
-    AstRule(
-        ast.Call,
-        {
-            'func': AstRule(
-                ast.Name,
-                {'id': 'getenv'},
-            ),
-        },
-    ),
+    AstRule(ast.Call, {'func': AstRule(ast.Name, {'id': 'getenv'})}),
     # os.getenv('foo', '')
     # "Call(func=Attribute(value=Name(id='os', ctx=Load()), attr='getenv', "
     # "ctx=Load()), args=[Constant(value='foo', kind=None), Constant(value='', "
@@ -135,15 +114,8 @@ GETENV_RULES = [
         ast.Call,
         {
             'func': AstRule(
-                ast.Attribute,
-                {
-                    'attr': 'getenv',
-                    'value': AstRule(
-                        ast.Name,
-                        {'id': 'os'},
-                    ),
-                },
-            ),
+                ast.Attribute, {'attr': 'getenv', 'value': AstRule(ast.Name, {'id': 'os'})}
+            )
         },
     ),
     # os.environ.get('foo', '')
@@ -158,25 +130,18 @@ GETENV_RULES = [
                 ast.Attribute,
                 {
                     'value': AstRule(
-                        ast.Attribute,
-                        {
-                            'attr': 'environ',
-                            'value': AstRule(
-                                ast.Name,
-                                {
-                                    'id': 'os',
-                                },
-                            ),
-                        },
-                    ),
+                        ast.Attribute, {'attr': 'environ', 'value': AstRule(ast.Name, {'id': 'os'})}
+                    )
                 },
-            ),
+            )
         },
     ),
 ]
 
 
-def find_node_with_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -> typing.Optional[ast.AST]:
+def find_node_with_getenv_call(
+    node: ast.AST, parent: ast.AST, child_idx: int
+) -> typing.Optional[ast.AST]:
     """
     Find node, where getenv is called.
     """
@@ -187,10 +152,7 @@ def find_node_with_getenv_call(node: ast.AST, parent: ast.AST, child_idx: int) -
 
 
 def find_line_errors(
-    node: ast.AST,
-    ast_content: typing.Optional[str],
-    parent: ast.AST,
-    child_idx: int = 0,
+    node: ast.AST, ast_content: typing.Optional[str], parent: ast.AST, child_idx: int = 0
 ) -> typing.Iterator[LineError]:
     bad_node = find_node_with_getenv_call(node, parent, child_idx)
     if bad_node:
@@ -205,18 +167,13 @@ def find_line_errors(
         yield LineError(get_ast_node_lineno(node), Reasons.STRAIGHT_ASSIGNMENT)
     elif not is_node_static(node):
         for child_idx, child_node in enumerate(ast.iter_child_nodes(node)):
-            yield from find_line_errors(
-                child_node, ast_content, node, child_idx
-            )
+            yield from find_line_errors(child_node, ast_content, node, child_idx)
 
 
 def get_line_numbers_of_wrong_assignments(
-    node: ast.AST,
-    ast_content: typing.Optional[str],
-    parent: ast.AST,
+    node: ast.AST, ast_content: typing.Optional[str], parent: ast.AST
 ) -> typing.Sequence[LineError]:
-    line_errors: typing.List[LineError] = list(
-        find_line_errors(node, ast_content, parent))
+    line_errors: typing.List[LineError] = list(find_line_errors(node, ast_content, parent))
 
     uniq_errors: typing.Set[LineError] = set()
     result = []
@@ -254,9 +211,7 @@ def main() -> typing.Optional[int]:
         lines_with_noqa = exclude_lines_with_noqa(settings_filepath)
         line_errors = [
             line_error
-            for line_error in get_line_numbers_of_wrong_assignments(
-                ast_tree, ast_content, ast_tree
-            )
+            for line_error in get_line_numbers_of_wrong_assignments(ast_tree, ast_content, ast_tree)
             if line_error.lineno not in lines_with_noqa
         ]
 

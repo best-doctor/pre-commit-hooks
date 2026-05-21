@@ -39,7 +39,8 @@ def get_input_files(
 
 def get_input_test_files(args: list[str] | None = None) -> Iterator[str]:
     return (
-        filepath for filepath in get_input_files(args)
+        filepath
+        for filepath in get_input_files(args)
         if (
             '/tests/' in filepath
             and (
@@ -51,9 +52,7 @@ def get_input_test_files(args: list[str] | None = None) -> Iterator[str]:
 
 
 def get_modules_files(
-    input_files: Iterable[str],
-    base_dir: str | None = None,
-    only_modules: list[Any] | None = None,
+    input_files: Iterable[str], base_dir: str | None = None, only_modules: list[Any] | None = None
 ) -> List[Tuple[str, str, List[str]]]:
     """Группирует список файлов по их корневым модулям."""
 
@@ -62,8 +61,7 @@ def get_modules_files(
 
     processed_modules: DefaultDict[str, List[str]] = defaultdict(list)
     for filepath in input_files:
-        module_name = os.path.relpath(os.path.dirname(
-            filepath), base_dir).split(os.sep)[0]
+        module_name = os.path.relpath(os.path.dirname(filepath), base_dir).split(os.sep)[0]
         if module_name == '.':
             continue
 
@@ -71,14 +69,12 @@ def get_modules_files(
             processed_modules[module_name].append(filepath)
 
     return [
-        (module_name, os.path.join(base_dir,
-         module_name.replace('.', os.sep)), module_files)
+        (module_name, os.path.join(base_dir, module_name.replace('.', os.sep)), module_files)
         for module_name, module_files in processed_modules.items()
     ]
 
 
 def is_django_model_file(file_path: str) -> bool:
-    return (
-        os.path.basename(file_path) == 'models.py'
-        or (os.path.basename(os.path.dirname(file_path)) == 'models' and file_path.endswith('.py'))
+    return os.path.basename(file_path) == 'models.py' or (
+        os.path.basename(os.path.dirname(file_path)) == 'models' and file_path.endswith('.py')
     )

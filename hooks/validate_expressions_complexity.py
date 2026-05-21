@@ -17,8 +17,16 @@ from hooks.utils.pre_commit import get_input_files
 
 # Build the simple_type tuple based on Python version
 _simple_types = [
-    ast.Name, ast.Import, ast.Bytes, ast.Nonlocal,
-    ast.ImportFrom, ast.Pass, ast.Raise, ast.Break, ast.Continue, type(None),
+    ast.Name,
+    ast.Import,
+    ast.Bytes,
+    ast.Nonlocal,
+    ast.ImportFrom,
+    ast.Pass,
+    ast.Raise,
+    ast.Break,
+    ast.Continue,
+    type(None),
     ast.Ellipsis,
 ]
 
@@ -60,8 +68,13 @@ NODE_TYPES_BY_CLASS = [
     (ast.DictComp, 'dict_comprehension'),
     (
         (
-            ast.Expr, ast.Return, ast.Starred, ast.Index,
-            ast.Yield, ast.YieldFrom, ast.FormattedValue,
+            ast.Expr,
+            ast.Return,
+            ast.Starred,
+            ast.Index,
+            ast.Yield,
+            ast.YieldFrom,
+            ast.FormattedValue,
             ast.Await,
         ),
         'item_with_value',
@@ -86,7 +99,7 @@ NODE_COMPLEXITY_BY_TYPE = {
     'featured_assign': 1,
     'binary_op': 1,
     'bool_op': 1,
-    'call': .5,
+    'call': 0.5,
     'compare': 1,
     'base_comprehension': 0,
     'delete': 1,
@@ -146,27 +159,15 @@ def _get_sub_nodes(node: Any, node_type_sid: str) -> List[ast.AST]:
 def get_expression_part_info(node: ast.AST) -> Dict[str, Any]:
     for types, node_type_name in NODE_TYPES_BY_CLASS:
         if isinstance(node, types):  # type: ignore
-            return {
-                'type': node_type_name,
-                'subnodes': _get_sub_nodes(node, node_type_name),
-            }
+            return {'type': node_type_name, 'subnodes': _get_sub_nodes(node, node_type_name)}
     else:
-        raise UnknownAstNodeError(
-            f'unknown expression type {type(node)}',
-            node=node
-        )
+        raise UnknownAstNodeError(f'unknown expression type {type(node)}', node=node)
 
 
 def get_expression_complexity(node: ast.AST) -> float:
     info = get_expression_part_info(node)
     score_addon = get_complexity_increase_for_node_type(info['type'])
-    return max(
-        (
-            get_expression_complexity(n)
-            for n in info['subnodes']
-        ),
-        default=0
-    ) + score_addon
+    return max((get_expression_complexity(n) for n in info['subnodes']), default=0) + score_addon
 
 
 def format_exception(exception: BaseAstNodeError, filepath: str, file_lines: List[str]) -> str:
@@ -180,15 +181,12 @@ def format_exception(exception: BaseAstNodeError, filepath: str, file_lines: Lis
     error_message.write(line)
     error_message.write('\n')
     error_message.write(' ' * col_offset)
-    error_message.write(
-        '^' * ((end_col_offset or len(line)) - col_offset))
+    error_message.write('^' * ((end_col_offset or len(line)) - col_offset))
     return error_message.getvalue()
 
 
 def get_file_errors(
-    pyfilepath: str,
-    max_expression_complexity: int,
-    ignore_django_orm_queries: bool,
+    pyfilepath: str, max_expression_complexity: int, ignore_django_orm_queries: bool
 ) -> Iterator[str]:
     ast_tree, file_content = get_ast_tree_with_content(pyfilepath)
     if ast_tree is None or file_content is None:
@@ -201,8 +199,7 @@ def get_file_errors(
         try:
             complexity = get_expression_complexity(expression)
         except UnknownAstNodeError as exc:
-            formatted_error_message = format_exception(
-                exc, pyfilepath, file_lines)
+            formatted_error_message = format_exception(exc, pyfilepath, file_lines)
             yield formatted_error_message
         else:
             if (
@@ -210,8 +207,10 @@ def get_file_errors(
                 and '# noqa' not in file_lines[get_ast_node_lineno(expression) - 1]
             ):
                 yield '{0}:{1} expression is too complex ({2}>{3})'.format(
-                    pyfilepath, get_ast_node_lineno(expression),
-                    complexity, max_expression_complexity,
+                    pyfilepath,
+                    get_ast_node_lineno(expression),
+                    complexity,
+                    max_expression_complexity,
                 )
 
 
@@ -220,9 +219,7 @@ def main() -> int:
 
     for pyfilepath in get_input_files():
         for error_message in get_file_errors(
-            pyfilepath,
-            max_expression_complexity=9,
-            ignore_django_orm_queries=True,
+            pyfilepath, max_expression_complexity=9, ignore_django_orm_queries=True
         ):
             has_errors = True
             print(error_message)  # noqa: T001

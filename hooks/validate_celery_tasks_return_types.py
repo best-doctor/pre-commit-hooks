@@ -17,13 +17,10 @@ class Error:
     function_name: str
 
 
-APP_TASK_DECORATOR_ATTRIBUTE = m.Attribute(
-    value=m.Name(value='app'), attr=m.Name(value='task'))
-ASYNC_RESULT_OR_NONE_MATCHER = m.OneOf(
-    m.Name(value='None'), m.Name(value='AsyncTaskResult'))
+APP_TASK_DECORATOR_ATTRIBUTE = m.Attribute(value=m.Name(value='app'), attr=m.Name(value='task'))
+ASYNC_RESULT_OR_NONE_MATCHER = m.OneOf(m.Name(value='None'), m.Name(value='AsyncTaskResult'))
 APP_TASK_DECORATOR_MATCHER = m.Decorator(
-    decorator=m.Call(
-        func=APP_TASK_DECORATOR_ATTRIBUTE) | APP_TASK_DECORATOR_ATTRIBUTE
+    decorator=m.Call(func=APP_TASK_DECORATOR_ATTRIBUTE) | APP_TASK_DECORATOR_ATTRIBUTE
 )
 FUNC_RETURN_NONE_OR_ASYNC_RESULT_MATCHER = m.FunctionDef(
     returns=(
@@ -51,8 +48,7 @@ class ReturnAnnotationValidator(m.MatcherDecoratableVisitor):
         for decorator in node.decorators:
             if self.matches(decorator, APP_TASK_DECORATOR_MATCHER):
                 if not self.matches(node, FUNC_RETURN_NONE_OR_ASYNC_RESULT_MATCHER):
-                    self.errors.append(
-                        Error(line=position.line, function_name=function_name))
+                    self.errors.append(Error(line=position.line, function_name=function_name))
                 break
 
 
@@ -74,7 +70,7 @@ def main() -> typing.Optional[int]:
         for error in errors:
             print(  # noqa: T001
                 f'{filepath}:{error.line}:{error.function_name} Invalid return type '
-                'should be AsyncTaskResult or None',
+                'should be AsyncTaskResult or None'
             )
 
     if has_errors:

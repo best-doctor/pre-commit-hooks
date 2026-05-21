@@ -26,10 +26,11 @@ repos:
   - id: isort
     exclude: hooks/tests/test_integration/test_validate_django_model_field_names/samples
 
-- repo: https://github.com/hhatto/autopep8
-  rev: v2.3.2
+- repo: https://github.com/psf/black
+  rev: 26.5.0
   hooks:
-  - id: autopep8
+  - id: black
+    language_version: python
 
 - repo: https://github.com/PyCQA/flake8
   rev: 7.3.0

@@ -17,21 +17,20 @@ def is_import_in_list(imported_name: str, forbidden_imports: List[str]) -> bool:
     return False
 
 
-def get_import_errors_in_ast_tree(pyfilepath: str, ast_tree: ast.AST, forbidden_imports: List[str]) -> List[str]:
+def get_import_errors_in_ast_tree(
+    pyfilepath: str, ast_tree: ast.AST, forbidden_imports: List[str]
+) -> List[str]:
     errors: List[str] = []
-    imports = [n for n in ast.walk(ast_tree) if isinstance(
-        n, (ast.Import, ast.ImportFrom))]
+    imports = [n for n in ast.walk(ast_tree) if isinstance(n, (ast.Import, ast.ImportFrom))]
     for import_node in imports:
         for import_name in get_full_imported_name(import_node):
             if is_import_in_list(import_name, forbidden_imports):
-                errors.append(
-                    f'{pyfilepath}:{import_node.lineno} Forbidden import')
+                errors.append(f'{pyfilepath}:{import_node.lineno} Forbidden import')
     return errors
 
 
 def main() -> Optional[int]:
-    forbidden_imports = get_list_param_from_configs(
-        'project_structure', 'forbidden_imports')
+    forbidden_imports = get_list_param_from_configs('project_structure', 'forbidden_imports')
     if not forbidden_imports:
         return None
 
@@ -42,8 +41,7 @@ def main() -> Optional[int]:
         if ast_tree is None:
             continue
 
-        errors += get_import_errors_in_ast_tree(
-            pyfilepath, ast_tree, forbidden_imports)
+        errors += get_import_errors_in_ast_tree(pyfilepath, ast_tree, forbidden_imports)
 
     for error in errors:
         print(error)  # noqa: T001

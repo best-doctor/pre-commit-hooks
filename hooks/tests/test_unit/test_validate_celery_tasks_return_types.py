@@ -27,10 +27,7 @@ def foo() -> int:
 
 @pytest.mark.parametrize(
     ['file_content', 'errors_count'],
-    (
-        [VALID_CONTENT, 0],
-        [INVALID_CONTENT, 1],
-    ),
+    ([VALID_CONTENT, 0], [INVALID_CONTENT, 1]),
     ids=['valid', 'invalid'],
 )
 def test_validate_return_types(file_content, errors_count):

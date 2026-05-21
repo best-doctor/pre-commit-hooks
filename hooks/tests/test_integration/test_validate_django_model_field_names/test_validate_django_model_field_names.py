@@ -3,7 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from hooks.utils.ast_helpers import iterate_files_in
-from hooks.validate_django_model_field_names import Error, date_validator, datetime_validator, validate
+from hooks.validate_django_model_field_names import (
+    Error,
+    date_validator,
+    datetime_validator,
+    validate,
+)
 
 SAMPLES_DIR = Path(__file__).parent.resolve() / 'samples'
 
@@ -26,8 +31,7 @@ def test_validate_models_module():
         _datetime_error('package_a/models.py', 13, 'bad_datetime'),
         _date_error('package_a/models.py', 19, 'date_bad'),
         _datetime_error('package_a/models.py', 21, 'bad_datetime'),
-        _datetime_error('package_a/models.py', 23,
-                        'my_bad_datetime', 'MyDateTimeExtraField'),
+        _datetime_error('package_a/models.py', 23, 'my_bad_datetime', 'MyDateTimeExtraField'),
     ]
 
 

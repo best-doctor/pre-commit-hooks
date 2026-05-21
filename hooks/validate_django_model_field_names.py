@@ -9,13 +9,7 @@ from hooks.utils.ast_helpers import get_ast_tree
 from hooks.utils.common_types import AssignOrAnnAssign
 from hooks.utils.pre_commit import get_input_files
 
-BOOLEAN_VERBS = (
-    'is',
-    'was',
-    'has',
-    'needs',
-    'should',
-)
+BOOLEAN_VERBS = ('is', 'was', 'has', 'needs', 'should')
 
 
 class BaseValidator:
@@ -43,8 +37,7 @@ class DateValidator(BaseValidator):
 class BooleanValidator(BaseValidator):
     def __init__(self) -> None:
         verbs_options = '|'.join(BOOLEAN_VERBS)
-        self._regex = re.compile(
-            fr'(?:[a-z0-9_]+_)?({verbs_options})_[a-z0-9_]+')
+        self._regex = re.compile(fr'(?:[a-z0-9_]+_)?({verbs_options})_[a-z0-9_]+')
         self.field_name_format = f'[xxx_]({verbs_options})_xxx'
 
     def validate(self, field_name: str) -> bool:

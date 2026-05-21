@@ -17,9 +17,7 @@ def main() -> Optional[int]:
         for assert_node in [n for n in ast.walk(ast_tree) if isinstance(n, ast.Assert)]:
             has_errors = True
             print(  # noqa: T001
-                '{0}:{1} assert usage detected'.format(
-                    pyfilepath, assert_node.lineno,
-                ),
+                '{0}:{1} assert usage detected'.format(pyfilepath, assert_node.lineno)
             )
 
     if has_errors:

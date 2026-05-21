@@ -24,8 +24,9 @@ def get_funcdefs(ast_tree: ast.Module) -> List[AnyFuncdef]:
 
 def funcdef_with_fixture(test_funcdef: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> bool:
     for decorator in test_funcdef.decorator_list:
-        fixture_without_argument = isinstance(
-            decorator, ast.Attribute) and decorator.attr == 'fixture'
+        fixture_without_argument = (
+            isinstance(decorator, ast.Attribute) and decorator.attr == 'fixture'
+        )
         fixture_with_argument = (
             isinstance(decorator, ast.Call)
             and isinstance(decorator.func, ast.Attribute)
@@ -38,8 +39,7 @@ def funcdef_with_fixture(test_funcdef: Union[ast.FunctionDef, ast.AsyncFunctionD
 
 
 def get_tests_with_wrong_naming() -> DefaultDict[str, List]:
-    tests_with_wrong_naming: DefaultDict[str,
-                                         List] = collections.defaultdict(list)
+    tests_with_wrong_naming: DefaultDict[str, List] = collections.defaultdict(list)
     for test_filename in get_input_test_files():
         ast_tree = get_ast_tree(pyfilepath=test_filename)
         if ast_tree is None:
@@ -50,11 +50,9 @@ def get_tests_with_wrong_naming() -> DefaultDict[str, List]:
             if test_funcdef.name.startswith('test_') or test_funcdef.name.startswith('_'):
                 continue
 
-            wrong_funcdef_without_fixture = funcdef_with_fixture(
-                test_funcdef=test_funcdef)
+            wrong_funcdef_without_fixture = funcdef_with_fixture(test_funcdef=test_funcdef)
             if not wrong_funcdef_without_fixture:
-                tests_with_wrong_naming[test_filename].append(
-                    test_funcdef.name)
+                tests_with_wrong_naming[test_filename].append(test_funcdef.name)
 
     return tests_with_wrong_naming
 

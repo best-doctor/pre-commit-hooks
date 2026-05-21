@@ -14,26 +14,14 @@ from hooks.utils.ast_helpers import (
 )
 
 
-@pytest.mark.parametrize(
-    'assignment, expected_name',
-    [
-        ('a = 1', 'a'),
-        ('a: int = 1', 'a'),
-    ],
-)
+@pytest.mark.parametrize('assignment, expected_name', [('a = 1', 'a'), ('a: int = 1', 'a')])
 def test__get_assign_name__returns_variable_name(assignment, expected_name):
     assign_node = ast.parse(assignment).body[0]
 
     assert get_assign_name(assign_node) == expected_name
 
 
-@pytest.mark.parametrize(
-    'assigment, variables_names',
-    [
-        ('a = 1', ['a']),
-        ('a: int = 1', ['a']),
-    ],
-)
+@pytest.mark.parametrize('assigment, variables_names', [('a = 1', ['a']), ('a: int = 1', ['a'])])
 def test_get_var_names_from_assignment_success_case(assigment, variables_names):
     assign_node = ast.parse(assigment).body[0]
     actual_result = get_var_names_from_assignment(assign_node)
@@ -96,10 +84,11 @@ def test_is_django_orm_query_success_case(import_str, imported_names):
         ('class Foo(super.Kek): pass', {'Kek'}, 'super', True),
     ],
 )
-def test__is_classdef_has_base_classes_success_case(classdef_node, base_classess, module_name, classdef_check):
+def test__is_classdef_has_base_classes_success_case(
+    classdef_node, base_classess, module_name, classdef_check
+):
     classdef_node = ast.parse(classdef_node).body[0]
 
-    actual_result = _is_classdef_has_base_classes(
-        classdef_node, base_classess, module_name)
+    actual_result = _is_classdef_has_base_classes(classdef_node, base_classess, module_name)
 
     assert actual_result == classdef_check

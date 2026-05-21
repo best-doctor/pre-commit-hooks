@@ -123,12 +123,9 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
     var_info: List[Tuple[str, ast.AST]] = []
     assignments = [n for n in ast.walk(ast_tree) if isinstance(n, ast.Assign)]
     var_info += flat([get_var_names_from_assignment(a) for a in assignments])
-    ann_assignments = [n for n in ast.walk(
-        ast_tree) if isinstance(n, ast.AnnAssign)]
-    var_info += flat([get_var_names_from_assignment(a)
-                     for a in ann_assignments])
-    funcdefs = [n for n in ast.walk(
-        ast_tree) if isinstance(n, ast.FunctionDef)]
+    ann_assignments = [n for n in ast.walk(ast_tree) if isinstance(n, ast.AnnAssign)]
+    var_info += flat([get_var_names_from_assignment(a) for a in ann_assignments])
+    funcdefs = [n for n in ast.walk(ast_tree) if isinstance(n, ast.FunctionDef)]
     var_info += flat([get_var_names_from_funcdef(f) for f in funcdefs])
     fors = [n for n in ast.walk(ast_tree) if isinstance(n, ast.For)]
     var_info += flat([get_var_names_from_for(f) for f in fors])
@@ -137,13 +134,16 @@ def extract_all_variable_names(ast_tree: ast.AST) -> List[Tuple[str, ast.AST]]:
 
 def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
     nodes_with_subnodes = (
-        ast.AsyncFunctionDef, ast.FunctionDef,
+        ast.AsyncFunctionDef,
+        ast.FunctionDef,
         ast.If,
-        ast.AsyncFor, ast.For,
+        ast.AsyncFor,
+        ast.For,
         ast.Module,
         ast.ClassDef,
         ast.Try,
-        ast.AsyncWith, ast.With,
+        ast.AsyncWith,
+        ast.With,
         ast.While,
     )
     if isinstance(node, (ast.If, ast.While)):
@@ -152,8 +152,7 @@ def iterate_over_expressions(node: ast.AST) -> Iterable[ast.AST]:
         yield node.iter
     nodes_to_iter = node.body  # type: ignore
     if isinstance(node, ast.Try):
-        nodes_to_iter = itertools.chain(
-            node.body, node.finalbody, *[n.body for n in node.handlers])
+        nodes_to_iter = itertools.chain(node.body, node.finalbody, *[n.body for n in node.handlers])
     for child_node in nodes_to_iter:
         if isinstance(child_node, nodes_with_subnodes):
             for subnode in iterate_over_expressions(child_node):
@@ -183,27 +182,35 @@ def is_django_orm_query(node: ast.AST) -> bool:
     for attribute_node in [n for n in ast.walk(node) if isinstance(n, ast.Attribute)]:
         if attribute_node.attr in django_orm_typical_methods:
             total_points_to_be_threated_as_django_orm_query += 1
-    return total_points_to_be_threated_as_django_orm_query >= points_required_to_be_threated_as_django_orm_query
+    return (
+        total_points_to_be_threated_as_django_orm_query
+        >= points_required_to_be_threated_as_django_orm_query
+    )
 
 
-def is_import_from(import_node: Union[ast.Import, ast.ImportFrom], package_name: str) -> bool:  # noqa: CCR001
+def is_import_from(
+    import_node: Union[ast.Import, ast.ImportFrom], package_name: str
+) -> bool:  # noqa: CCR001
     prefix = f'{package_name}.'
     if isinstance(import_node, ast.Import):
         for import_alias in import_node.names:
             if import_alias.name == package_name or import_alias.name.startswith(prefix):
                 return True
     elif isinstance(import_node, ast.ImportFrom):
-        if import_node.module and (import_node.module == package_name or import_node.module.startswith(prefix)):
+        if import_node.module and (
+            import_node.module == package_name or import_node.module.startswith(prefix)
+        ):
             return True
-        full_imported_names = [
-            f'{import_node.module}.{a.name}' for a in import_node.names]
+        full_imported_names = [f'{import_node.module}.{a.name}' for a in import_node.names]
         for imported_name in full_imported_names:
             if imported_name == package_name or imported_name.startswith(prefix):
                 return True
     return False
 
 
-def get_imports_from(package_name: str, ast_tree: ast.AST) -> List[Union[ast.Import, ast.ImportFrom]]:
+def get_imports_from(
+    package_name: str, ast_tree: ast.AST
+) -> List[Union[ast.Import, ast.ImportFrom]]:
     imports: List[Union[ast.Import, ast.ImportFrom]] = []
     for import_node in ast.walk(ast_tree):
         if not isinstance(import_node, (ast.Import, ast.ImportFrom)):
@@ -214,7 +221,7 @@ def get_imports_from(package_name: str, ast_tree: ast.AST) -> List[Union[ast.Imp
 
 
 def has_import_of_function_from_package(
-    ast_tree: ast.AST, package_name: str, function_name: str,
+    ast_tree: ast.AST, package_name: str, function_name: str
 ) -> bool:
     url_import_from_nodes = get_imports_from(package_name, ast_tree=ast_tree)
 
@@ -227,9 +234,7 @@ def has_import_of_function_from_package(
 
 
 def _is_classdef_has_base_classes(
-    classdef_node: ast.ClassDef,
-    base_classess: Set[str],
-    module_name: Optional[str],
+    classdef_node: ast.ClassDef, base_classess: Set[str], module_name: Optional[str]
 ) -> bool:
     if not classdef_node.bases:
         return False
@@ -244,19 +249,17 @@ def _is_classdef_has_base_classes(
     if module_name:
         for base_node in classdef_node.bases:
             if (
-                isinstance(
-                    base_node, ast.Attribute) and base_node.attr in base_classess
-                and isinstance(base_node.value, ast.Name) and base_node.value.id == module_name
+                isinstance(base_node, ast.Attribute)
+                and base_node.attr in base_classess
+                and isinstance(base_node.value, ast.Name)
+                and base_node.value.id == module_name
             ):
                 return True
     return False
 
 
 def _inherited_from_base_model(classdef_node: ast.ClassDef) -> bool:
-    base_models_classes_names = {
-        'Model',
-        'AbstractBaseUser',
-    }
+    base_models_classes_names = {'Model', 'AbstractBaseUser'}
     return _is_classdef_has_base_classes(classdef_node, base_models_classes_names, 'models')
 
 
@@ -317,14 +320,16 @@ def get_all_funcdefs(ast_tree: ast.AST) -> List[AnyFuncdef]:
 
 
 def get_assignments_to(
-    ast_tree: ast.AST, target_name: str,
+    ast_tree: ast.AST, target_name: str
 ) -> List[Union[ast.Assign, ast.AnnAssign, ast.AugAssign]]:
     return [
-        ast_node for ast_node in ast.walk(ast_tree)
+        ast_node
+        for ast_node in ast.walk(ast_tree)
         if (
             isinstance(ast_node, ast.Assign)
             and any(
-                target.id == target_name for target in ast_node.targets
+                target.id == target_name
+                for target in ast_node.targets
                 if isinstance(target, ast.Name)
             )
         )
@@ -373,12 +378,12 @@ def get_check_decorators_includes(decorators_set: Set[str]) -> Callable[[ast.Cla
             return False
         decorators = None
         try:
-            decorators = {
-                d.id for d in classdef_node.decorator_list if isinstance(d, ast.Name)}
+            decorators = {d.id for d in classdef_node.decorator_list if isinstance(d, ast.Name)}
         except AttributeError:
             pass
         if decorators and decorators.intersection(decorators_set):
             return True
 
         return False
+
     return _decorator_includes

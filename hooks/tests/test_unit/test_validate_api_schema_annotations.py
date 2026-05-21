@@ -41,8 +41,7 @@ def views_file_path():
 
 
 def test__get_serializer_field_method__returns_matching_getter():
-    node = get_class_def_node_body_from_string_definition(
-        """class TestSerializer(ModelSerializer):
+    node = get_class_def_node_body_from_string_definition("""class TestSerializer(ModelSerializer):
             visit = SerializerMethodField()
 
             def get_visit(self) -> str:
@@ -50,8 +49,7 @@ def test__get_serializer_field_method__returns_matching_getter():
 
             def get_other(self) -> int:
                 pass
-        """,
-    )
+        """)
 
     method = get_serializer_field_method(node, 'visit')
 
@@ -60,11 +58,9 @@ def test__get_serializer_field_method__returns_matching_getter():
 
 
 def test__get_serializer_field_method__returns_none_when_getter_missing():
-    node = get_class_def_node_body_from_string_definition(
-        """class TestSerializer(ModelSerializer):
+    node = get_class_def_node_body_from_string_definition("""class TestSerializer(ModelSerializer):
             visit = SerializerMethodField()
-        """,
-    )
+        """)
 
     assert get_serializer_field_method(node, 'visit') is None
 
@@ -141,7 +137,8 @@ def test_is_view_success_case(definition, expected_result):
         (
             """class Test:
                 \"\"\"Has docstring.\"\"\"
-            """, [],
+            """,
+            [],
         ),
         ('class Test: pass', [':1 Test missed docstring']),
     ),
@@ -155,76 +152,59 @@ def test_check_docstring_success_case(definition, expected_errors):
 
 
 @pytest.mark.parametrize(
-    ('definition', 'file_path_fixture', 'expected_errors'), [
+    ('definition', 'file_path_fixture', 'expected_errors'),
+    [
+        ('class Test(ModelSerializer): pass', 'serializers_file_path', []),
         (
-            'class Test(ModelSerializer): pass',
-            'serializers_file_path',
-            [],
-        ),
-        (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     schema_tags = ['test']
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     some_field = 'some_value'
                     schema_tags: list[str] = ['test']
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     schema_tags: list[str] = ['test']
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     some_field: str = 'some_value'
                     schema_tags = ['test']
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     some_field: str = 'some_value'
                     schema_tags: list[str] = ['test']
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     some_field: str = 'some_value'
                     schema_tags: list[str]
-                """
-            ),
+                """),
             'viewsets_file_path',
             [],
         ),
         (
-            (
-                """class Test(GenericViewSet):
+            ("""class Test(GenericViewSet):
                     pass
-                """
-            ),
+                """),
             'viewsets_file_path',
             ['Test missed schema tags attribute'],
         ),
@@ -240,93 +220,77 @@ def test_check_schema_tag_presence(request, definition, file_path_fixture, expec
 
 
 @pytest.mark.parametrize(
-    ('definition', 'file_path_fixture', 'expected_errors'), [
+    ('definition', 'file_path_fixture', 'expected_errors'),
+    [
         (
-            (
-                """class TestSerializer(ModelSerializer):
+            ("""class TestSerializer(ModelSerializer):
                     some_field = SchemaWrapper(
                         SerializerMethodField(help_text='Test help text', some_another_attr='Another help text'),
                         schema_type=BooleanField,
                     )
-                """
-            ),
+                """),
             'serializers_file_path',
             [],
         ),
         (
-            (
-                """class TestSerializer(ModelSerializer):
+            ("""class TestSerializer(ModelSerializer):
                     some_field = SerializerMethodField(
                         help_text='Test help text', some_another_attr='Another help text',
                     )
-                """
-            ),
+                """),
             'serializers_file_path',
             [],
         ),
+        ('class Test(GenericViewSet): pass', 'serializers_file_path', []),
         (
-            'class Test(GenericViewSet): pass',
-            'serializers_file_path',
-            [],
-        ),
-        (
-            (
-                """class TestSerializer(ModelSerializer):
+            ("""class TestSerializer(ModelSerializer):
                     some_field = SerializerMethodField(
                         some_another_attr='Another help text',
                     )
                     another_field = SerializerMethodField(
                         some_another_attr='Another help text',
                     )
-                """
-            ),
+                """),
             'serializers_file_path',
-            [':2 missing `help_text` attribute',
-                ':5 missing `help_text` attribute'],
+            [':2 missing `help_text` attribute', ':5 missing `help_text` attribute'],
         ),
         (
-            (
-                """class TestSerializer(ModelSerializer):
+            ("""class TestSerializer(ModelSerializer):
                     another_field = None
                     some_field = SchemaWrapper(
                         SerializerMethodField(some_another_attr='Another help text'),
                         schema_type=BooleanField,
                     )
-                """
-            ),
+                """),
             'serializers_file_path',
             [':4 missing `help_text` attribute'],
         ),
         (
-            (
-                """class TestSerializer(Serializer):
+            ("""class TestSerializer(Serializer):
                     another_field = None
                     some_field = SchemaWrapper(
                         SerializerMethodField(some_another_attr='Another help text'),
                         schema_type=BooleanField,
                     )
-                """
-            ),
+                """),
             'serializers_file_path',
             [':4 missing `help_text` attribute'],
         ),
         (
-            (
-                """class TestSerializer(ModelSerializer):
+            ("""class TestSerializer(ModelSerializer):
                     another_field = None
                     some_field = SchemaWrapper(
                         SerializerMethodField(some_another_attr='Another help text'),
                         schema_type=BooleanField,
                     )
-                """
-            ),
+                """),
             'not_inspected_serializers_file_path',
             [],
         ),
     ],
 )
 def test_help_text_attribute_in_serializer_fields(
-    request, definition, file_path_fixture, expected_errors,
+    request, definition, file_path_fixture, expected_errors
 ):
     file_path = request.getfixturevalue(file_path_fixture)
     node = get_class_def_node_body_from_string_definition(definition)
@@ -336,53 +300,64 @@ def test_help_text_attribute_in_serializer_fields(
     assert errors == expected_errors
 
 
-@pytest.mark.parametrize('definition, expected_errors', (
+@pytest.mark.parametrize(
+    'definition, expected_errors',
     (
-        """class Test(GenericViewSet):
+        (
+            """class Test(GenericViewSet):
             pass
-        """, [':1 Test missed `serializer_class_map` attribute'],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [':1 Test missed `serializer_class_map` attribute'],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field = 'some_value'
-        """, [':1 Test missed `serializer_class_map` attribute'],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [':1 Test missed `serializer_class_map` attribute'],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field = 'some_value'
             serializer_class_map = ...
-        """, [],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field = 'some_value'
             serializer_class_map: SerializerClassMap = ...
-        """, [],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field: str = 'some_value'
             serializer_class_map: SerializerClassMap = ...
-        """, [],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field: str = 'some_value'
             serializer_class_map = ...
-        """, [],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [],
+        ),
+        (
+            """class Test(GenericViewSet):
             some_field: str
             serializer_class_map: SerializerClassMap
-        """, [],
-    ),
-    (
-        """class Test(ListAPIView):
+        """,
+            [],
+        ),
+        (
+            """class Test(ListAPIView):
             pass
-        """, [],
+        """,
+            [],
+        ),
     ),
-))
+)
 def test_check_viewset_has_serializer_class_map(definition, expected_errors):
     node = get_class_def_node_body_from_string_definition(definition)
 
@@ -391,20 +366,25 @@ def test_check_viewset_has_serializer_class_map(definition, expected_errors):
     assert errors == expected_errors
 
 
-@pytest.mark.parametrize('definition, expected_errors', (
+@pytest.mark.parametrize(
+    'definition, expected_errors',
     (
-        """class Test(GenericViewSet):
+        (
+            """class Test(GenericViewSet):
             another_field = 'another_value'
             lookup_field = 'uuid'
-        """, [],
-    ),
-    (
-        """class Test(GenericViewSet):
+        """,
+            [],
+        ),
+        (
+            """class Test(GenericViewSet):
             another_field = 'another_value'
             lookup_field = 'id'
-        """, [":1 Test viewset has forbidden `lookup_field`. Choose from: ['uuid']"],
+        """,
+            [":1 Test viewset has forbidden `lookup_field`. Choose from: ['uuid']"],
+        ),
     ),
-))
+)
 def test_check_viewset_lookup_field_has_valid_value(definition, expected_errors):
     node = get_class_def_node_body_from_string_definition(definition)
 
@@ -414,7 +394,8 @@ def test_check_viewset_lookup_field_has_valid_value(definition, expected_errors)
 
 
 @pytest.mark.parametrize(
-    ('definition', 'file_path_fixture', 'expected_errors'), [
+    ('definition', 'file_path_fixture', 'expected_errors'),
+    [
         (
             """class Test(ModelSerializer):
                 visit = SerializerMethodField()
@@ -569,7 +550,7 @@ def test_check_viewset_lookup_field_has_valid_value(definition, expected_errors)
     ],
 )
 def test_check_schema_wrapper_for_serializer_method_field(
-    request, definition, file_path_fixture, expected_errors,
+    request, definition, file_path_fixture, expected_errors
 ):
     file_path = request.getfixturevalue(file_path_fixture)
     node = get_class_def_node_body_from_string_definition(definition)
@@ -579,38 +560,45 @@ def test_check_schema_wrapper_for_serializer_method_field(
     assert errors == expected_errors
 
 
-@pytest.mark.parametrize('definition, expected_errors', [
-    (
-        """class TestViewset(ModelViewSet):
+@pytest.mark.parametrize(
+    'definition, expected_errors',
+    [
+        (
+            """class TestViewset(ModelViewSet):
             @action
             def test_action(self):
                 pass
-        """, [':3 test_action missed docstring'],
-    ),
-    (
-        """class TestViewset(ModelViewSet):
+        """,
+            [':3 test_action missed docstring'],
+        ),
+        (
+            """class TestViewset(ModelViewSet):
             @action
             def test_action(self):
                 \"\"\"Has docstring.\"\"\"
                 pass
-        """, [],
-    ),
-    (
-        """class TestViewset(ModelViewSet):
+        """,
+            [],
+        ),
+        (
+            """class TestViewset(ModelViewSet):
             @drf_action
             def test_action(self):
                 pass
-        """, [':3 test_action missed docstring'],
-    ),
-    (
-        """class TestViewset(ModelViewSet):
+        """,
+            [':3 test_action missed docstring'],
+        ),
+        (
+            """class TestViewset(ModelViewSet):
             @drf_action
             def test_action(self):
                 \"\"\"Has docstring.\"\"\"
                 pass
-        """, [],
-    ),
-])
+        """,
+            [],
+        ),
+    ],
+)
 def test_check_docstrings_for_api_action_handlers(definition, expected_errors):
     node = get_class_def_node_body_from_string_definition(definition)
 
@@ -619,18 +607,21 @@ def test_check_docstrings_for_api_action_handlers(definition, expected_errors):
     assert errors == expected_errors
 
 
-@pytest.mark.parametrize('definition, expected_errors', [
-    (
-        """class TestView(GenericAPIView):
+@pytest.mark.parametrize(
+    'definition, expected_errors',
+    [
+        (
+            """class TestView(GenericAPIView):
             def get(self) -> None:
                 pass
 
             def patch(self) -> None:
                 pass
-        """, [':2 get missed docstring', ':5 patch missed docstring'],
-    ),
-    (
-        """class TestView(GenericAPIView):
+        """,
+            [':2 get missed docstring', ':5 patch missed docstring'],
+        ),
+        (
+            """class TestView(GenericAPIView):
             def post(self) -> None:
                 \"\"\"Has docstring.\"\"\"
                 pass
@@ -638,15 +629,18 @@ def test_check_docstrings_for_api_action_handlers(definition, expected_errors):
             def put(self) -> None:
                 \"\"\"Has docstring.\"\"\"
                 pass
-        """, [],
-    ),
-    (
-        """class TestViewset(ModelViewSet):
+        """,
+            [],
+        ),
+        (
+            """class TestViewset(ModelViewSet):
             def get(self):
                 pass
-        """, [],
-    ),
-])
+        """,
+            [],
+        ),
+    ],
+)
 def test_check_docstrings_for_views_dispatch_methods(definition, expected_errors):
     node = get_class_def_node_body_from_string_definition(definition)
 
@@ -655,18 +649,21 @@ def test_check_docstrings_for_views_dispatch_methods(definition, expected_errors
     assert errors == expected_errors
 
 
-@pytest.mark.parametrize('definition, expected_errors', [
-    (
-        """class TestViewset(ModelViewSet):
+@pytest.mark.parametrize(
+    'definition, expected_errors',
+    [
+        (
+            """class TestViewset(ModelViewSet):
             def list(self) -> None:
                 pass
 
             def retrieve(self) -> None:
                 pass
-        """, [':2 list missed docstring', ':5 retrieve missed docstring'],
-    ),
-    (
-        """class TestViewset(ModelViewSet):
+        """,
+            [':2 list missed docstring', ':5 retrieve missed docstring'],
+        ),
+        (
+            """class TestViewset(ModelViewSet):
             def create(self) -> None:
                 \"\"\"Has docstring.\"\"\"
                 pass
@@ -674,15 +671,18 @@ def test_check_docstrings_for_views_dispatch_methods(definition, expected_errors
             def partial_update(self) -> None:
                 \"\"\"Has docstring.\"\"\"
                 pass
-        """, [],
-    ),
-    (
-        """class TestView(GenericAPIView):
+        """,
+            [],
+        ),
+        (
+            """class TestView(GenericAPIView):
             def get(self):
                 pass
-        """, [],
-    ),
-])
+        """,
+            [],
+        ),
+    ],
+)
 def test_check_doctstrings_viewsets_dispatch_methods(definition, expected_errors):
     node = get_class_def_node_body_from_string_definition(definition)
 
